@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "876181390352",
+    "firebase_url": "https://walki-bb995.firebaseio.com",
+    "project_id": "walki-bb995",
+    "storage_bucket": "walki-bb995.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:876181390352:android:2e7a72f6ca10388f033695",
+        "android_client_info": {
+          "package_name": "com.walkiapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "876181390352-2jiafunc7ibkc33d00ea6023dule9k4c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDtxP7bBjEv74Z4o4ADCvxXP7j-l1-FM-4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "876181390352-2jiafunc7ibkc33d00ea6023dule9k4c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
