@@ -8,12 +8,14 @@ export default (props) => {
     <Input
       placeholder={props.hint}
       errorMessage={props.errorMessage}
+      secureTextEntry={props.secureTextEntry}
       errorStyle={styles.error}
       underlineColorAndroid="transparent"
       autoCapitalize="none"
       inputStyle={[styles.input, props.inputStyle]}
       inputContainerStyle={styles.base}
       onChangeText={props.handleInputChange}
+      value={props.value}
     />
   );
 };
@@ -28,6 +30,7 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: background,
     borderRadius: 10,
+    marginBottom: 10
   },
   base: {
     borderBottomWidth: 0,

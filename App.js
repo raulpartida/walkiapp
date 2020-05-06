@@ -58,7 +58,8 @@ const TabStackScreen = () => (
 
 const App: () => React$Node = () => {
   const [isLoading, setIsLoading] = React.useState(true);
-  const [userToken, setUserToken] = React.useState('AJ45KTIL');
+  // const [userToken, setUserToken] = React.useState('AJ45KTIL');
+  const [userToken, setUserToken] = [null, null];
 
   React.useEffect(() => {
     setTimeout(() => {
