@@ -3,6 +3,7 @@ import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import AsyncStorage from '@react-native-community/async-storage';
 import Favorites from './src/scenes/Favorites/Favorites';
 import Login from './src/scenes/Login/Login';
 import Menu from './src/scenes/Menu/Menu';
@@ -58,40 +59,101 @@ const TabStackScreen = () => (
 
 const App: () => React$Node = () => {
   const [isLoading, setIsLoading] = React.useState(true);
-  const [userToken, setUserToken] = React.useState('AJ45KTIL');
+  const [userToken, setUserToken] = React.useState(null);
+
+  const AuthContext = React.createContext();
+  const [state, dispatch] = React.useReducer(
+    (prevState, action) => {
+      switch (action.type) {
+        case 'RESTORE_TOKEN':
+          return {
+            ...prevState,
+            userToken: action.token,
+            isLoading: false,
+          };
+        case 'SIGN_IN':
+          return {
+            ...prevState,
+            isSignout: false,
+            userToken: action.token,
+          };
+        case 'SIGN_OUT':
+          return {
+            ...prevState,
+            isSignout: true,
+            userToken: null,
+          };
+      }
+    },
+    {
+      isLoading: true,
+      isSignout: false,
+      userToken: null,
+    },
+  );
 
   React.useEffect(() => {
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+    const bootstrapAsync = async () => {
+      let userToken;
+      try {
+        userToken = await AsyncStorage.getItem('userToken');
+        setIsLoading(false);
+      } catch (e) {
+        // Restoring token failed
+      }
+      dispatch({type: 'RESTORE_TOKEN', token: userToken});
+    };
+
+    bootstrapAsync();
   }, []);
+
+  const authContext = React.useMemo(
+    () => ({
+      signIn: async data => {
+        dispatch({type: 'SIGN_IN', token: 'JKL4R5A#1'});
+      },
+      signOut: () => dispatch({type: 'SIGN_OUT'}),
+      signUp: async data => {
+        dispatch({type: 'SIGN_IN', token: 'dummy-auth-token'});
+      },
+    }),
+    [],
+  );
 
   if (isLoading) return <SplashScreen />;
 
   return (
-    <NavigationContainer>
-      {userToken ? (
-        <HomeStack.Navigator
-          initialRouteName="Home"
-          screenOptions={{headerShown: false}}>
-          <HomeStack.Screen name="Home" component={TabStackScreen} />
-          <HomeStack.Screen name="Menu" component={Menu} />
-          <HomeStack.Screen name="Shop" component={Shop} />
-          <HomeStack.Screen name="Promotion" component={Promotion} />
-          <HomeStack.Screen name="Help" component={Help} />
-          <HomeStack.Screen name="Join" component={Join} />
-          <HomeStack.Screen name="Profile" component={Profile} />
-          <HomeStack.Screen name="EditProfile" component={EditProfile} />
-          <HomeStack.Screen name="NewPassword" component={NewPass} />
-        </HomeStack.Navigator>
-      ) : (
-        <AuthStack.Navigator screenOptions={{headerShown: false}}>
-          <AuthStack.Screen name="SignIn" component={Login} />
-          <AuthStack.Screen name="SignUp" component={SignUp} />
-          <AuthStack.Screen name="Splash" component={SplashScreen} />
-        </AuthStack.Navigator>
-      )}
-    </NavigationContainer>
+    <AuthContext.Provider value={authContext}>
+      <NavigationContainer>
+        {userToken ? (
+          <HomeStack.Navigator
+            initialRouteName="Home"
+            screenOptions={{headerShown: false}}>
+            <HomeStack.Screen name="Home" component={TabStackScreen} />
+            <HomeStack.Screen name="Menu" component={Menu} />
+            <HomeStack.Screen name="Shop" component={Shop} />
+            <HomeStack.Screen name="Promotion" component={Promotion} />
+            <HomeStack.Screen name="Help" component={Help} />
+            <HomeStack.Screen name="Join" component={Join} />
+            <HomeStack.Screen name="Profile" component={Profile} />
+            <HomeStack.Screen name="EditProfile" component={EditProfile} />
+            <HomeStack.Screen name="NewPassword" component={NewPass} />
+          </HomeStack.Navigator>
+        ) : (
+          <AuthStack.Navigator screenOptions={{headerShown: false}}>
+            <AuthStack.Screen
+              name="SignIn"
+              component={Login}
+              options={{
+                animationTypeForReplace: state.isSignout ? 'pop' : 'push',
+              }}
+            />
+            <AuthStack.Screen name="SignUp" component={SignUp} />
+            <AuthStack.Screen name="Splash" component={SplashScreen} />
+          </AuthStack.Navigator>
+        )}
+      </NavigationContainer>
+    </AuthContext.Provider>
   );
 };
 
