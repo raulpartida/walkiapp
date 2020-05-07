@@ -23,12 +23,7 @@ class SignUp extends Component {
           value: "",
           errorLabel: false 
         },
-        maternal: {
-          type: "generic",
-          value: "",
-          errorLabel: false
-        },
-        paternal: {
+        last: {
           type: "generic",
           value: "",
           errorLabel: false
@@ -52,7 +47,6 @@ class SignUp extends Component {
     };
   }
 
-  componentDidMount() {}
 
   handle = (text, input) => {
     this.setState(prevState => {
@@ -64,12 +58,79 @@ class SignUp extends Component {
   }
   
   createAccount = () => {
-
+    const { inputs } = this.state;
+    this.login()
     if(!this.verifyFields()){
-      alert("Registrar")
+      fetch('https://walki.us-south.cf.appdomain.cloud/api/user/registerUsers', {
+        method: 'POST',
+        headers: {
+          'Accept':       'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            name: inputs.name.value,
+            last: inputs.last.value,
+            email: inputs.email.value,
+            password: inputs.password.value,
+            address: '',
+            role: 'user',
+        })
+      })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        if(responseJson.ok){
+          this.login()
+        }else{
+          if(responseJson.message == 'User already exist'){
+            alert("Ya existe un usuario con este email.")
+          }else{
+            alert("Ocurrió un error. Inténtalo más tarde.")
+          }
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
     }
   }
   
+  login = () => {
+    const { inputs } = this.state;
+
+    let params = {
+      email: 'checorobles@gmail.com',
+      password: '123abc',
+      getEncrypt: true
+    };
+    
+    let formData = new FormData();
+    
+    for (var k in params) {
+        formData.append(k, params[k]);
+    }
+
+    fetch('https://walki.us-south.cf.appdomain.cloud/api/user/login', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+        },
+        body: formData
+        // body: JSON.stringify({
+        //     email: inputs.email.value,
+        //     password: inputs.password.value,
+        //     getEncrypt: true,
+        // })
+      })
+      .then((response) => response.json())
+      .then((responseJson) => {
+          // Save token
+          alert(JSON.stringify(responseJson))
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
   verifyFields(){
     const { inputs } = this.state;
     const regEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -162,20 +223,12 @@ class SignUp extends Component {
             {this.renderError("name")}
 
             <InputField
-              hint="Apellido paterno"
+              hint="Apellidos"
               label=""
-              handleInputChange={(text) => this.handle(text, 'paternal')}
+              handleInputChange={(text) => this.handle(text, 'last')}
               style={styles.input}
             />
-            {this.renderError("paternal")}
-
-            <InputField
-              hint="Apellido materno"
-              label=""
-              handleInputChange={(text) => this.handle(text, 'maternal')}
-              style={styles.input}
-            />
-            {this.renderError("maternal")}
+            {this.renderError("last")}
 
             <InputField
               hint="Correo electrónico"
