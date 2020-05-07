@@ -59,7 +59,7 @@ class SignUp extends Component {
   
   createAccount = () => {
     const { inputs } = this.state;
-    this.login()
+    
     if(!this.verifyFields()){
       fetch('https://walki.us-south.cf.appdomain.cloud/api/user/registerUsers', {
         method: 'POST',
@@ -112,19 +112,18 @@ class SignUp extends Component {
     fetch('https://walki.us-south.cf.appdomain.cloud/api/user/login', {
         method: 'POST',
         headers: {
-          'content-type': 'application/x-www-form-urlencoded',
+          'content-type': 'application/json',
         },
-        body: formData
-        // body: JSON.stringify({
-        //     email: inputs.email.value,
-        //     password: inputs.password.value,
-        //     getEncrypt: true,
-        // })
+        body: JSON.stringify({
+          email: inputs.email.value,
+          password: inputs.password.value,
+          getEncrypt: true
+        })
       })
-      .then((response) => response.json())
-      .then((responseJson) => {
+      .then((response) => response.text())
+      .then((response) => {
           // Save token
-          alert(JSON.stringify(responseJson))
+          alert("usuario creado")
       })
       .catch((error) => {
         console.error(error);
