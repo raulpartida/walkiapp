@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {View, StyleSheet} from 'react-native';
 import {PermissionsAndroid} from 'react-native';
+import {AsyncStorage} from '@react-native-community/async-storage';
 import ScreenContainer from '../../components/ScreenContainer';
 import {Image} from 'react-native-elements';
 import SubTitleSection from '../../components/SubTitleSection';
@@ -17,33 +18,36 @@ class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      token: '',
       password: '',
       user: '',
     };
   }
 
-  _loginHandle = () => {
-    const {signIn} = React.useContext(AuthContext);
-    const data = new FormData();
-    data.append('email', this.state.user);
-    data.append('password', this.state.password);
-
-    fetch(baseURL + '/user/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: data,
-    })
-      .then(response => response.json())
-      .then(response => {
-        this.setState({token: response});
-        console.log(this.state);
+  _loginHandle = async () => {
+    try {
+      let res =
+        'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6ImUxYzMyODUxMDk3ODliNmZjYTQwNGE4ZjdiMzE2ZjIwIiwicmV2IjoiMS1lM2FlYjUzMjEzMTM0NzQ5YTdiZWI3NzQ1ZTNhMTk0ZiIsIm5hbWUiOiJBZG1pbiIsImVtYWlsIjoiYWRtaW4iLCJyb2xlIjoiQURNSU4iLCJpbWFnZSI6IkFkbWluIiwiaWF0IjoxNTg4ODI0MDkxfQ.3m6J1p0CPxdx_gK0xTrVNfYV0A-6OqjwGIANBx-zJV8';
+      /*fetch(baseURL + '/user/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: this.state.user,
+          password: this.state.password,
+          getEncrypt: true,
+        }),
       })
-      .catch(error => {
-        console.error('Error:', error);
-      });
+        .then(response => response.json)
+        .then(response => {
+          res = response;
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+      console.log(res);*/
+      await AsyncStorage.setItem('token', res);
+    } catch (error) {}
   };
 
   render() {
