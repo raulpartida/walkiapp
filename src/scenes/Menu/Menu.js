@@ -5,6 +5,7 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
 } from 'react-native';
+import {AuthContext} from '../../Context';
 import ScreenContainer from '../../components/ScreenContainer';
 import {Avatar} from 'react-native-elements';
 import ImageView from '../../components/ImageView';
@@ -27,6 +28,7 @@ class Menu extends Component {
   handle = () => {};
 
   render() {
+    const {signOut} = React.useContext(AuthContext);
     return (
       <ScreenContainer
         style={{paddingStart: 20, paddingEnd: 20, backgroundColor: white}}>
@@ -110,7 +112,7 @@ class Menu extends Component {
           <CancelButton
             title="Cerrar sesión"
             style={styles.btnClose}
-            onClickEvent={() => this.props.navigation.navigate('Login')}
+            onClickEvent={() => signOut()}
           />
           <Label value="0.1.0" style={styles.versionLabel} />
         </ScrollView>

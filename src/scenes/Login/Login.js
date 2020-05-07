@@ -11,6 +11,7 @@ import ContainerRow from '../../components/ContainerRow';
 import {SocialIcon} from 'react-native-elements';
 import {greenDark, white, grayLabel, grayLigth} from '../../assets/colors';
 import {baseURL} from '../../Constants';
+import {AuthContext} from '../../Context';
 
 class Login extends Component {
   constructor(props) {
@@ -22,7 +23,8 @@ class Login extends Component {
     };
   }
 
-  loginHandle = () => {
+  _loginHandle = () => {
+    const {signIn} = React.useContext(AuthContext);
     const data = new FormData();
     data.append('email', this.state.user);
     data.append('password', this.state.password);
@@ -93,7 +95,7 @@ class Login extends Component {
           />
           <ActionButton
             title="Iniciar Sesión"
-            onClickEvent={() => this.loginHandle()}
+            onClickEvent={() => this._loginHandle()}
             style={[styles.btnBase, styles.btnSignIn]}
             containerStyle={{flex: 3, paddingStart: 8, paddingEnd: 8}}
           />
