@@ -6,8 +6,9 @@ export default props => {
     <Icon.Button
       name={props.name}
       onPress={props.onClickEvent}
-      backgroundColor="transparent"
+      backgroundColor="red"
       size={20}
+      style={{borderColor: 'red', position: 'relative'}}
       color={props.color}>
       {props.text}
     </Icon.Button>

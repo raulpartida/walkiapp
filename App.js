@@ -17,7 +17,7 @@ import NewPass from './src/scenes/NewPassword/NewPassword';
 import Profile from './src/scenes/Profile/Profile';
 import SplashScreen from './src/scenes/SplashScreen/SplashScreen';
 import QRScanner from './src/scenes/QRScanner/QRScanner';
-import IconButton from './src/components/IconButton';
+import Icon from 'react-native-vector-icons/AntDesign';
 
 const HomeStack = createStackNavigator();
 const AuthStack = createStackNavigator();
@@ -47,7 +47,7 @@ const TabStackScreen = () => (
           iconName = focused ? 'star' : 'staro';
         }
 
-        return <IconButton name={iconName} size={size} color={color} />;
+        return <Icon name={iconName} size={size} color={color} />;
       },
     })}>
     <Tabs.Screen name="Home" component={Main} />
