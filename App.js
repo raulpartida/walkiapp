@@ -43,7 +43,7 @@ const TabStackScreen = () => (
           iconName = focused ? 'home' : 'home';
         } else if (route.name === 'QR Code') {
           iconName = focused ? 'qrcode' : 'qrcode';
-        } else if (route.name === 'Favorites') {
+        } else if (route.name === 'Favoritos') {
           iconName = focused ? 'star' : 'staro';
         }
 
@@ -52,7 +52,7 @@ const TabStackScreen = () => (
     })}>
     <Tabs.Screen name="Home" component={Main} />
     <Tabs.Screen name="QR Code" component={QRScanner} />
-    <Tabs.Screen name="Favorites" component={Favorites} />
+    <Tabs.Screen name="Favoritos" component={Favorites} />
   </Tabs.Navigator>
 );
 
