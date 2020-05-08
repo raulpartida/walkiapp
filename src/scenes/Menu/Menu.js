@@ -54,13 +54,13 @@ class Menu extends Component {
           </ContainerRow>
           <View style={styles.container}>
             <SubTitleSection value="Mi cuenta" />
-            <TouchableWithoutFeedback
+            {/*<TouchableWithoutFeedback
               onPress={() => this.props.navigation.navigate('Shop')}>
               <View style={styles.rowSection}>
                 <IconButton text="" name="shoppingcart" color="#9c9c9c" />
                 <Text value="Tiendas" />
               </View>
-            </TouchableWithoutFeedback>
+            </TouchableWithoutFeedback>*/}
             <TouchableWithoutFeedback
               onPress={() => this.props.navigation.navigate('Promotion')}>
               <View style={styles.rowSection}>
@@ -68,13 +68,13 @@ class Menu extends Component {
                 <Text value="Ofertas" />
               </View>
             </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback
+            {/*<TouchableWithoutFeedback
               onPress={() => this.props.navigation.navigate('Help')}>
               <View style={styles.rowSection}>
                 <IconButton text="" name="customerservice" color="#9c9c9c" />
                 <Text value="Soporte" />
               </View>
-            </TouchableWithoutFeedback>
+            </TouchableWithoutFeedback>*/}
             <TouchableWithoutFeedback
               onPress={() => this.props.navigation.navigate('Profile')}>
               <View style={styles.rowSection}>
@@ -82,15 +82,15 @@ class Menu extends Component {
                 <Text value="Mi perfil" />
               </View>
             </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback
+            {/*<TouchableWithoutFeedback
               onPress={() => this.props.navigation.navigate('Configuration')}>
               <View style={styles.rowSection}>
                 <IconButton text="" name="setting" color="#9c9c9c" />
                 <Text value="Configuración" />
               </View>
-            </TouchableWithoutFeedback>
+            </TouchableWithoutFeedback>*/}
           </View>
-          <View style={styles.container}>
+          {/*<View style={styles.container}>
             <SubTitleSection value="Información" />
             <TouchableWithoutFeedback
               onPress={() => this.props.navigation.navigate('Support')}>
@@ -106,7 +106,7 @@ class Menu extends Component {
                 <Text value="Quiero unirme a Walki" />
               </View>
             </TouchableWithoutFeedback>
-          </View>
+          </View>*/}
           <CancelButton
             title="Cerrar sesión"
             style={styles.btnClose}
