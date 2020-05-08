@@ -4,6 +4,8 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {AuthContext} from './src/Context';
+import {baseURL} from './src/Constants';
+import AsyncStorage from '@react-native-community/async-storage';
 import Favorites from './src/scenes/Favorites/Favorites';
 import Login from './src/scenes/Login/Login';
 import Menu from './src/scenes/Menu/Menu';
@@ -57,19 +59,82 @@ const TabStackScreen = () => (
   </Tabs.Navigator>
 );
 
+async function _loginHandle(user = '', password = '') {
+  try {
+    let hash = await fetch(baseURL + '/user/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: user,
+        password: password,
+        getEncrypt: true,
+      }),
+    })
+      .then(response => {
+        return response.text();
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    try {
+      await AsyncStorage.setItem('token', hash);
+    } catch (error) {
+      console.log(error.message);
+    }
+    return hash;
+  } catch (error) {}
+}
+
 const App: () => React$Node = () => {
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [userToken, setUserToken] = React.useState(null);
+  const [state, dispatch] = React.useReducer(
+    (prevState, action) => {
+      console.log(action);
+      switch (action.type) {
+        case 'RESTORE_TOKEN':
+          return {
+            ...prevState,
+            userToken: action.token,
+            isLoading: false,
+          };
+        case 'SIGN_IN':
+          return {
+            ...prevState,
+            isSignout: false,
+            userToken: action.token,
+            isLoading: false,
+          };
+        case 'SIGN_OUT':
+          return {
+            ...prevState,
+            isSignout: true,
+            userToken: null,
+            isLoading: false,
+          };
+      }
+    },
+    {
+      isLoading: true,
+      isSignout: false,
+      userToken: null,
+    },
+  );
 
   const authContext = React.useMemo(
     () => ({
-      signIn: () => {
-        setIsLoading(false);
-        setUserToken('HAY46#OD');
+      signIn: (user, password) => {
+        let userToken = null;
+        if (user !== '' && password !== '')
+          userToken = _loginHandle(user, password);
+
+        dispatch({type: 'SIGN_IN', token: userToken});
       },
-      signOut: () => {
-        setIsLoading(false);
-        setUserToken(null);
+      signOut: async () => {
+        try {
+          dispatch({type: 'SIGN_OUT'});
+          await AsyncStorage.removeItem('token');
+        } catch (error) {}
       },
     }),
     [],
@@ -77,16 +142,23 @@ const App: () => React$Node = () => {
 
   React.useEffect(() => {
     setTimeout(() => {
-      setIsLoading(false);
+      const bootstrapAsync = async () => {
+        let userToken;
+        try {
+          userToken = await AsyncStorage.getItem('token');
+        } catch (e) {}
+        dispatch({type: 'RESTORE_TOKEN', token: userToken});
+      };
+      bootstrapAsync();
     }, 1000);
   }, []);
-
-  if (isLoading) return <SplashScreen />;
 
   return (
     <AuthContext.Provider value={authContext}>
       <NavigationContainer>
-        {userToken ? (
+        {state.isLoading ? (
+          <SplashScreen />
+        ) : state.userToken ? (
           <HomeStack.Navigator
             initialRouteName="Home"
             screenOptions={{headerShown: false}}>

@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {View, StyleSheet} from 'react-native';
 import {PermissionsAndroid} from 'react-native';
-import {AsyncStorage} from '@react-native-community/async-storage';
+
 import ScreenContainer from '../../components/ScreenContainer';
 import {Image} from 'react-native-elements';
 import SubTitleSection from '../../components/SubTitleSection';
@@ -11,74 +11,46 @@ import ActionButton from '../../components/ActionButton';
 import ContainerRow from '../../components/ContainerRow';
 import {SocialIcon} from 'react-native-elements';
 import {greenDark, white, grayLabel, grayLigth} from '../../assets/colors';
-import {baseURL} from '../../Constants';
 import {AuthContext} from '../../Context';
 
-class Login extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      password: '',
-      user: '',
-    };
-  }
+function Login(props) {
+  const [user, setUser] = React.useState('');
+  const [password, setPassword] = React.useState('');
 
-  _loginHandle = async () => {
-    try {
-      let res =
-        'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6ImUxYzMyODUxMDk3ODliNmZjYTQwNGE4ZjdiMzE2ZjIwIiwicmV2IjoiMS1lM2FlYjUzMjEzMTM0NzQ5YTdiZWI3NzQ1ZTNhMTk0ZiIsIm5hbWUiOiJBZG1pbiIsImVtYWlsIjoiYWRtaW4iLCJyb2xlIjoiQURNSU4iLCJpbWFnZSI6IkFkbWluIiwiaWF0IjoxNTg4ODI0MDkxfQ.3m6J1p0CPxdx_gK0xTrVNfYV0A-6OqjwGIANBx-zJV8';
-      /*fetch(baseURL + '/user/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: this.state.user,
-          password: this.state.password,
-          getEncrypt: true,
-        }),
-      })
-        .then(response => response.json)
-        .then(response => {
-          res = response;
-        })
-        .catch(error => {
-          console.error('Error:', error);
-        });
-      console.log(res);*/
-      await AsyncStorage.setItem('token', res);
-    } catch (error) {}
+  const {signIn} = React.useContext(AuthContext);
+
+  const login = (user, password) => {
+    signIn(user, password);
   };
 
-  render() {
-    return (
-      <ScreenContainer style={styles.parentContainer}>
-        <View style={styles.childOne}>
-          <Image
-            source={require('../../assets/images/walki-logo-temp.jpeg')}
-            style={styles.logo}
-          />
-          <SubTitleSection
-            value="Lo quieres, lo tienes..."
-            style={styles.label}
-          />
-        </View>
-        <View style={styles.childTwo}>
-          <InputField
-            hint="Correo"
-            handleInputChange={text => this.setState({user: text})}
-            inputStyle={styles.input}
-            type="email-address"
-            isSecure={false}
-            keyType="next"
-          />
-          <InputField
-            hint="Contraseña"
-            handleInputChange={text => this.setState({password: text})}
-            inputStyle={styles.input}
-            isSecure={true}
-          />
-          {/*<NeutralButton
+  return (
+    <ScreenContainer style={styles.parentContainer}>
+      <View style={styles.childOne}>
+        <Image
+          source={require('../../assets/images/walki-logo-temp.jpeg')}
+          style={styles.logo}
+        />
+        <SubTitleSection
+          value="Lo quieres, lo tienes..."
+          style={styles.label}
+        />
+      </View>
+      <View style={styles.childTwo}>
+        <InputField
+          hint="Correo"
+          handleInputChange={text => setUser(text)}
+          inputStyle={styles.input}
+          type="email-address"
+          isSecure={false}
+          keyType="next"
+        />
+        <InputField
+          hint="Contraseña"
+          handleInputChange={text => setPassword(text)}
+          inputStyle={styles.input}
+          isSecure={true}
+        />
+        {/*<NeutralButton
             title="¿Olvidaste tu contraseña?"
             onClickEvent={() => this.props.navigation.push('PasswordRecovery')}
             style={{vis}}
@@ -89,24 +61,23 @@ class Login extends Component {
           type="facebook"
           style={styles.c}
         />*/}
-        </View>
-        <ContainerRow style={styles.childThree}>
-          <ActionButton
-            title="Crear cuenta"
-            onClickEvent={() => this.props.navigation.push('SignUp')}
-            style={[styles.btnBase, styles.btnSingUp]}
-            containerStyle={{flex: 2, paddingStart: 8, paddingEnd: 8}}
-          />
-          <ActionButton
-            title="Iniciar Sesión"
-            onClickEvent={() => this._loginHandle()}
-            style={[styles.btnBase, styles.btnSignIn]}
-            containerStyle={{flex: 3, paddingStart: 8, paddingEnd: 8}}
-          />
-        </ContainerRow>
-      </ScreenContainer>
-    );
-  }
+      </View>
+      <ContainerRow style={styles.childThree}>
+        <ActionButton
+          title="Crear cuenta"
+          onClickEvent={() => props.navigation.push('SignUp')}
+          style={[styles.btnBase, styles.btnSingUp]}
+          containerStyle={{flex: 2, paddingStart: 8, paddingEnd: 8}}
+        />
+        <ActionButton
+          title="Iniciar Sesión"
+          onClickEvent={() => login(user, password)}
+          style={[styles.btnBase, styles.btnSignIn]}
+          containerStyle={{flex: 3, paddingStart: 8, paddingEnd: 8}}
+        />
+      </ContainerRow>
+    </ScreenContainer>
+  );
 }
 
 export default Login;

@@ -5,10 +5,10 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
 } from 'react-native';
-import {AuthContext} from '../../Context';
 import ScreenContainer from '../../components/ScreenContainer';
 import {Avatar} from 'react-native-elements';
 import ImageView from '../../components/ImageView';
+import AsyncStorage from '@react-native-community/async-storage';
 import SubTitleSection from '../../components/SubTitleSection';
 import CancelButton from '../../components/CancelButton';
 import ContainerRow from '../../components/ContainerRow';
@@ -16,83 +16,75 @@ import Label from '../../components/Label';
 import Text from '../../components/Text';
 import IconButton from '../../components/IconButton';
 import {graySubTitle, grayText, greenLigth, white} from '../../assets/colors';
+import {AuthContext} from '../../Context';
 
-class Menu extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
+function Menu(props) {
+  const {signOut} = React.useContext(AuthContext);
 
-  componentDidMount() {}
-
-  handle = () => {};
-
-  render() {
-    const {signOut} = React.useContext(AuthContext);
-    return (
-      <ScreenContainer
-        style={{paddingStart: 20, paddingEnd: 20, backgroundColor: white}}>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{alignItems: 'center'}}>
-          <ContainerRow style={{justifyContent: 'flex-end'}}>
-            <IconButton
-              text=""
-              name="close"
-              color="#9c9c9c"
-              onClickEvent={() => this.props.navigation.navigate('Home')}
-            />
-          </ContainerRow>
-          <ContainerRow style={styles.avatar}>
-            <SubTitleSection value="Raúl Partida" style={styles.person} />
-            <Avatar
-              rounded
-              size="large"
-              source={{
-                uri:
-                  'https://s3.amazonaws.com/uifaces/faces/twitter/ladylexy/128.jpg',
-              }}
-            />
-          </ContainerRow>
-          <View style={styles.container}>
-            <SubTitleSection value="Mi cuenta" />
-            <TouchableWithoutFeedback
+  return (
+    <ScreenContainer
+      style={{paddingStart: 20, paddingEnd: 20, backgroundColor: white}}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{alignItems: 'center'}}>
+        <ContainerRow style={{justifyContent: 'flex-end'}}>
+          <IconButton
+            text=""
+            name="close"
+            color="#9c9c9c"
+            onClickEvent={() => props.navigation.navigate('Home')}
+          />
+        </ContainerRow>
+        <ContainerRow style={styles.avatar}>
+          <SubTitleSection value="Raúl Partida" style={styles.person} />
+          <Avatar
+            rounded
+            size="large"
+            source={{
+              uri:
+                'https://s3.amazonaws.com/uifaces/faces/twitter/ladylexy/128.jpg',
+            }}
+          />
+        </ContainerRow>
+        <View style={styles.container}>
+          <SubTitleSection value="Mi cuenta" />
+          {/*<TouchableWithoutFeedback
               onPress={() => this.props.navigation.navigate('Shop')}>
               <View style={styles.rowSection}>
                 <IconButton text="" name="shoppingcart" color="#9c9c9c" />
                 <Text value="Tiendas" />
               </View>
-            </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback
-              onPress={() => this.props.navigation.navigate('Promotion')}>
-              <View style={styles.rowSection}>
-                <IconButton text="" name="tagso" color="#9c9c9c" />
-                <Text value="Ofertas" />
-              </View>
-            </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback
-              onPress={() => this.props.navigation.navigate('Help')}>
-              <View style={styles.rowSection}>
-                <IconButton text="" name="customerservice" color="#9c9c9c" />
-                <Text value="Soporte" />
-              </View>
-            </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback
-              onPress={() => this.props.navigation.navigate('Profile')}>
-              <View style={styles.rowSection}>
-                <IconButton text="" name="user" color="#9c9c9c" />
-                <Text value="Mi perfil" />
-              </View>
-            </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback
+            </TouchableWithoutFeedback>*/}
+          <TouchableWithoutFeedback
+            onPress={() => props.navigation.navigate('Promotion')}>
+            <View style={styles.rowSection}>
+              <IconButton text="" name="tagso" color="#9c9c9c" />
+              <Text value="Ofertas" />
+            </View>
+          </TouchableWithoutFeedback>
+          {/*<TouchableWithoutFeedback
+            onPress={() => props.navigation.navigate('Help')}>
+            <View style={styles.rowSection}>
+              <IconButton text="" name="customerservice" color="#9c9c9c" />
+              <Text value="Soporte" />
+            </View>
+          </TouchableWithoutFeedback>*/}
+          <TouchableWithoutFeedback
+            onPress={() => props.navigation.navigate('Profile')}>
+            <View style={styles.rowSection}>
+              <IconButton text="" name="user" color="#9c9c9c" />
+              <Text value="Mi perfil" />
+            </View>
+          </TouchableWithoutFeedback>
+          {/*<TouchableWithoutFeedback
               onPress={() => this.props.navigation.navigate('Configuration')}>
               <View style={styles.rowSection}>
                 <IconButton text="" name="setting" color="#9c9c9c" />
                 <Text value="Configuración" />
               </View>
-            </TouchableWithoutFeedback>
-          </View>
-          <View style={styles.container}>
+            </TouchableWithoutFeedback>*/}
+        </View>
+        {/*<View style={styles.container}>
             <SubTitleSection value="Información" />
             <TouchableWithoutFeedback
               onPress={() => this.props.navigation.navigate('Support')}>
@@ -108,17 +100,16 @@ class Menu extends Component {
                 <Text value="Quiero unirme a Walki" />
               </View>
             </TouchableWithoutFeedback>
-          </View>
-          <CancelButton
-            title="Cerrar sesión"
-            style={styles.btnClose}
-            onClickEvent={() => signOut()}
-          />
-          <Label value="0.1.0" style={styles.versionLabel} />
-        </ScrollView>
-      </ScreenContainer>
-    );
-  }
+          </View>*/}
+        <CancelButton
+          title="Cerrar sesión"
+          style={styles.btnClose}
+          onClickEvent={() => signOut()}
+        />
+        <Label value="0.1.0" style={styles.versionLabel} />
+      </ScrollView>
+    </ScreenContainer>
+  );
 }
 
 export default Menu;
