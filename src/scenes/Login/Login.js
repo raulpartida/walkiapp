@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {View, StyleSheet} from 'react-native';
 import {PermissionsAndroid} from 'react-native';
+
 import ScreenContainer from '../../components/ScreenContainer';
 import {Image} from 'react-native-elements';
 import SubTitleSection from '../../components/SubTitleSection';
@@ -9,128 +10,124 @@ import NeutralButton from '../../components/NeutralButton';
 import ActionButton from '../../components/ActionButton';
 import ContainerRow from '../../components/ContainerRow';
 import {SocialIcon} from 'react-native-elements';
-import Logo from '../../assets/images/walki-logo-temp.jpeg';
-import {green, grayText, white} from '../../assets/colors';
+import {greenDark, white, grayLabel, grayLigth} from '../../assets/colors';
+import {AuthContext} from '../../Context';
 
-class Login extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
+function Login(props) {
+  const [user, setUser] = React.useState('');
+  const [password, setPassword] = React.useState('');
 
-  componentDidMount() {}
+  const {signIn} = React.useContext(AuthContext);
 
-  componentWillUnmount() {}
+  const login = (user, password) => {
+    signIn(user, password);
+  };
 
-  handle = () => {};
-
-  render() {
-    return (
-      <ScreenContainer style={styles.c}>
-        <View style={styles.row1}>
-          <Image source={Logo} style={styles.logo} />
-          <SubTitleSection
-            value="Lo quieres, lo tienes..."
-            style={styles.label}
-          />
-        </View>
-        <View style={styles.row2}>
-          <InputField
-            hint="Usuario"
-            handleInputChange={() => this.handle()}
-            inputStyle={styles.input}
-          />
-          <InputField
-            hint="Contraseña"
-            handleInputChange={() => this.handle()}
-            inputStyle={styles.input}
-          />
-          <NeutralButton
+  return (
+    <ScreenContainer style={styles.parentContainer}>
+      <View style={styles.childOne}>
+        <Image
+          source={require('../../assets/images/walki-logo-temp.jpeg')}
+          style={styles.logo}
+        />
+        <SubTitleSection
+          value="Lo quieres, lo tienes..."
+          style={styles.label}
+        />
+      </View>
+      <View style={styles.childTwo}>
+        <InputField
+          hint="Correo"
+          handleInputChange={text => setUser(text)}
+          inputStyle={styles.input}
+          type="email-address"
+          isSecure={false}
+          keyType="next"
+        />
+        <InputField
+          hint="Contraseña"
+          handleInputChange={text => setPassword(text)}
+          inputStyle={styles.input}
+          isSecure={true}
+        />
+        {/*<NeutralButton
             title="¿Olvidaste tu contraseña?"
             onClickEvent={() => this.props.navigation.push('PasswordRecovery')}
-            style={styles.c}
+            style={{vis}}
           />
-          {/*<SocialIcon
+          <SocialIcon
           title="Sign In With Facebook"
           button
           type="facebook"
           style={styles.c}
         />*/}
-        </View>
-        <ContainerRow style={styles.row3}>
-          <ActionButton
-            title="Crear cuenta"
-            onClickEvent={() => this.props.navigation.push('SignUp')}
-            style={(styles.btnBase, styles.btnSignUp)}
-            containerStyle={styles.btnSingUpContainer}
-          />
-          <ActionButton
-            title="Iniciar Sesión"
-            onClickEvent={() => this.props.navigation.navigate('Home')}
-            style={(styles.btnBase, styles.btnSignIn)}
-            containerStyle={styles.btnSingInContainer}
-          />
-        </ContainerRow>
-      </ScreenContainer>
-    );
-  }
+      </View>
+      <ContainerRow style={styles.childThree}>
+        <ActionButton
+          title="Crear cuenta"
+          onClickEvent={() => props.navigation.push('SignUp')}
+          style={[styles.btnBase, styles.btnSingUp]}
+          containerStyle={{flex: 2, paddingStart: 8, paddingEnd: 8}}
+        />
+        <ActionButton
+          title="Iniciar Sesión"
+          onClickEvent={() => login(user, password)}
+          style={[styles.btnBase, styles.btnSignIn]}
+          containerStyle={{flex: 3, paddingStart: 8, paddingEnd: 8}}
+        />
+      </ContainerRow>
+    </ScreenContainer>
+  );
 }
 
 export default Login;
 
 const styles = StyleSheet.create({
-  c: {margin: 0},
-  row1: {
-    flex: 3,
-    width: '100%',
+  parentContainer: {
+    backgroundColor: white,
+    flex: 1,
+    justifyContent: 'space-between',
+    alignItems: 'stretch',
+    flexDirection: 'column',
+  },
+  childOne: {
+    justifyContent: 'flex-end',
     alignItems: 'center',
-    paddingTop: 50,
+    flex: 2,
   },
-  row2: {
+  childTwo: {
     flex: 3,
+    alignItems: 'center',
+    padding: 20,
   },
-  row3: {
-    position: 'absolute',
-    bottom: 10,
-  },
+  childThree: {flex: 1, alignItems: 'center'},
   logo: {
     width: 100,
     height: 100,
   },
   label: {
-    margin: 0,
+    margin: 10,
     fontSize: 16,
     width: '100%',
+    color: grayLabel,
     textAlign: 'center',
+    flex: 0,
   },
-  input: {
-    width: '70%',
-    padding: 8,
-  },
+  input: {marginTop: 10, marginBottom: 10},
   btnBase: {
-    fontSize: 16,
-    borderRadius: 30,
+    borderRadius: 10,
     paddingStart: 10,
     paddingEnd: 10,
     paddingBottom: 5,
     paddingTop: 5,
-    lineHeight: 18,
+    height: 50,
   },
   btnSingUp: {
-    width: '100%',
-    backgroundColor: green,
+    backgroundColor: grayLigth,
     color: white,
-  },
-  btnSingUpContainer: {
-    width: '36%',
-    marginStart: 10,
   },
   btnSignIn: {
-    width: '100%',
-    backgroundColor: green,
+    backgroundColor: greenDark,
     color: white,
-  },
-  btnSingInContainer: {
-    width: '56%',
   },
 });
