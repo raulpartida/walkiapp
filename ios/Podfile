@@ -38,7 +38,6 @@ target 'WalkiApp' do
 
   pod 'RNFirebase', :path => '../node_modules/react-native-firebase'
 
-  pod 'RNSVG', :path => '../node_modules/react-native-svg'
 
   target 'WalkiAppTests' do
     inherit! :search_paths

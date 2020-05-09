@@ -73,7 +73,7 @@ class SignUp extends Component {
             email: inputs.email.value,
             password: inputs.password.value,
             address: '',
-            role: 'user',
+            role: 'USER',
         })
       })
       .then((response) => response.json())
@@ -97,18 +97,6 @@ class SignUp extends Component {
   login = () => {
     const { inputs } = this.state;
 
-    let params = {
-      email: 'checorobles@gmail.com',
-      password: '123abc',
-      getEncrypt: true
-    };
-    
-    let formData = new FormData();
-    
-    for (var k in params) {
-        formData.append(k, params[k]);
-    }
-
     fetch('https://walki.us-south.cf.appdomain.cloud/api/user/login', {
         method: 'POST',
         headers: {
@@ -123,7 +111,7 @@ class SignUp extends Component {
       .then((response) => response.text())
       .then((response) => {
           // Save token
-          alert("usuario creado")
+          alert("usuario creado:"+ response)
       })
       .catch((error) => {
         console.error(error);
