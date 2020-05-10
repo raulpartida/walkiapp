@@ -38,6 +38,7 @@ target 'WalkiApp' do
 
   pod 'RNFirebase', :path => '../node_modules/react-native-firebase'
 
+
   target 'WalkiAppTests' do
     inherit! :search_paths
     # Pods for testing

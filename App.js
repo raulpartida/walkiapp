@@ -88,6 +88,8 @@ async function _loginHandle(user = '', password = '') {
 }
 
 const App: () => React$Node = () => {
+  const [isLoading, setIsLoading] = React.useState(true);
+
   const [state, dispatch] = React.useReducer(
     (prevState, action) => {
       console.log(action);
