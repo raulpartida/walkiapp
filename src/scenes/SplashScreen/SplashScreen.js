@@ -1,7 +1,9 @@
 import React, {Component} from 'react';
 import {StyleSheet} from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
-import ImageView from '../../components/ImageView';
+import {Image} from 'react-native-elements';
+import Logo from '../../assets/images/walki-logo-temp.jpeg';
+import {white} from '../../assets/colors';
 
 class CodeRecovery extends Component {
   constructor(props) {
@@ -13,11 +15,8 @@ class CodeRecovery extends Component {
 
   render() {
     return (
-      <ScreenContainer style={styles.c}>
-        <ImageView
-          style={styles.c}
-          url="https://facebook.github.io/react-native/img/tiny_logo.png"
-        />
+      <ScreenContainer style={styles.parentContainer}>
+        <Image source={Logo} style={styles.logo} />
       </ScreenContainer>
     );
   }
@@ -26,5 +25,13 @@ class CodeRecovery extends Component {
 export default CodeRecovery;
 
 const styles = StyleSheet.create({
-  c: {},
+  parentContainer: {
+    backgroundColor: white,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logo: {
+    width: 80,
+    height: 80,
+  },
 });

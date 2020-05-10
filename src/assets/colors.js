@@ -10,6 +10,6 @@ export const grayText = '#626a74';
 export const graySubTitle = '#47525e';
 export const background = '#dbf8e8';
 export const black = '#000';
-export const grayLigth = '#EDE7E7';
+export const grayLigth = '#d4d4d4';
 export const yellow = '#FFFF00';
 //export const  = '';
