@@ -25,59 +25,60 @@ class Login extends Component {
     super(props);
     this.state = {
       favorites: [],
+      subsidiaries: [],
       isRefreshing: false,
     };
   }
 
   componentDidMount() {
     this.getData();
+    alert("Hey")
   }
 
   getData(){
-    let data = [
-      {
-        id: 1,
-        image: img1,
-        name: 'Zara'
-      },
-      {
-        id: 2,
-        image: img2,
-        name: 'Forever 21'
-      },
-      {
-        id: 3,
-        image: img3,
-        name: 'Bershka'
-      },
-      {
-        id: 4,
-        image: img4,
-        name: 'Pull & Bear'
-      },
-      {
-        id: 5,
-        image: img1,
-        name: 'Vans'
-      },
-      {
-        id: 6,
-        image: img2,
-        name: 'BestBuy'
-      },
-      {
-        id: 7,
-        image: img3,
-        name: 'Tienda 3'
-      },
-      {
-        id: 8,
-        image: img4,
-        name: 'Tienda 3'
-      },
-    ]
+    const userid = '5026cf2c4f9792500eceeaec0a1d773c';
+    const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjUwMjZjZjJjNGY5NzkyNTAwZWNlZWFlYzBhMWQ3NzNjIiwicmV2IjoiMy02ODMxZGI2MjgxOTE5YjViOWNkNTc2MmI5ODZiOTE5NiIsIm5hbWUiOiJTZXJnaW8iLCJlbWFpbCI6ImNoZWNvcm9ibGVzQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNTg5MDg1OTY0fQ.4ttttHOPGreqoHDa0L5fr9Q8dNpVW3oWE5iYnLmhnYU';
 
-    this.setState({isRefreshing: false, favorites: data })
+    fetch('https://walki.us-south.cf.appdomain.cloud/api/user/getFavorite/'+userid, {
+      method: 'GET',
+      headers: {
+        'content-type': 'application/json',
+        'Authorization': token
+      }
+    })
+    .then((response) => response.json())
+    .then((response) => {
+        if(!response.message.length){
+          this.setState({isRefreshing: false, favorites: [] })
+          Toast.showWithGravity('No tienes favoritos agregados.', Toast.LONG, Toast.CENTER);
+        }else{
+          this.getSubsidaries();
+          alert(JSON.stringify(response))
+        }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
+
+
+  getSubsidaries(){
+    const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjUwMjZjZjJjNGY5NzkyNTAwZWNlZWFlYzBhMWQ3NzNjIiwicmV2IjoiMy02ODMxZGI2MjgxOTE5YjViOWNkNTc2MmI5ODZiOTE5NiIsIm5hbWUiOiJTZXJnaW8iLCJlbWFpbCI6ImNoZWNvcm9ibGVzQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNTg5MDg1OTY0fQ.4ttttHOPGreqoHDa0L5fr9Q8dNpVW3oWE5iYnLmhnYU';
+
+    fetch('https://walki.us-south.cf.appdomain.cloud/api/subsidiary', {
+      method: 'GET',
+      async: false,
+      headers: {
+        'Authorization': token
+      }
+    })
+    .then((response) => response.json())
+    .then((response) => {
+      this.setState({isRefreshing: false, subsidiaries: [response.rows] })
+    })
+    .catch((error) => {
+      console.error(error);
+    });
   }
 
   handle = () => {};
@@ -172,12 +173,12 @@ const styles = StyleSheet.create({
   item: {
     width: '48%',
     margin: '1.3%',
-    height: 250,
+    height: 200,
     overflow: 'hidden',
     borderRadius: 10
   },
   itemBigger: {
-    height: 250
+    height: 200
   },
   image: {
     height: '100%',
