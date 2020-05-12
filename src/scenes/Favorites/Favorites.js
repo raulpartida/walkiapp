@@ -27,33 +27,31 @@ class Login extends Component {
       favorites: [],
       subsidiaries: [],
       isRefreshing: false,
+      baseUrl: 'https://walki.us-south.cf.appdomain.cloud/api/',
+      userid: '5026cf2c4f9792500eceeaec0a1d773c',
+      token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjUwMjZjZjJjNGY5NzkyNTAwZWNlZWFlYzBhMWQ3NzNjIiwicmV2IjoiMy02ODMxZGI2MjgxOTE5YjViOWNkNTc2MmI5ODZiOTE5NiIsIm5hbWUiOiJTZXJnaW8iLCJlbWFpbCI6ImNoZWNvcm9ibGVzQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNTg5MDg1OTY0fQ.4ttttHOPGreqoHDa0L5fr9Q8dNpVW3oWE5iYnLmhnYU'
     };
   }
 
   componentDidMount() {
     this.getData();
-    alert("Hey")
   }
 
   getData(){
-    const userid = '5026cf2c4f9792500eceeaec0a1d773c';
-    const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjUwMjZjZjJjNGY5NzkyNTAwZWNlZWFlYzBhMWQ3NzNjIiwicmV2IjoiMy02ODMxZGI2MjgxOTE5YjViOWNkNTc2MmI5ODZiOTE5NiIsIm5hbWUiOiJTZXJnaW8iLCJlbWFpbCI6ImNoZWNvcm9ibGVzQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNTg5MDg1OTY0fQ.4ttttHOPGreqoHDa0L5fr9Q8dNpVW3oWE5iYnLmhnYU';
-
-    fetch('https://walki.us-south.cf.appdomain.cloud/api/user/getFavorite/'+userid, {
+    fetch(this.state.baseUrl+'user/getFavorite/'+this.state.userid, {
       method: 'GET',
       headers: {
         'content-type': 'application/json',
-        'Authorization': token
+        'Authorization': this.state.token
       }
     })
     .then((response) => response.json())
     .then((response) => {
-        if(!response.message.length){
+        if(response.message){
           this.setState({isRefreshing: false, favorites: [] })
           Toast.showWithGravity('No tienes favoritos agregados.', Toast.LONG, Toast.CENTER);
         }else{
-          this.getSubsidaries();
-          alert(JSON.stringify(response))
+          this.setState({isRefreshing: false, favorites: response.arreglo_jsons_favoritos_final })
         }
     })
     .catch((error) => {
@@ -62,52 +60,42 @@ class Login extends Component {
   }
 
 
-  getSubsidaries(){
-    const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjUwMjZjZjJjNGY5NzkyNTAwZWNlZWFlYzBhMWQ3NzNjIiwicmV2IjoiMy02ODMxZGI2MjgxOTE5YjViOWNkNTc2MmI5ODZiOTE5NiIsIm5hbWUiOiJTZXJnaW8iLCJlbWFpbCI6ImNoZWNvcm9ibGVzQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNTg5MDg1OTY0fQ.4ttttHOPGreqoHDa0L5fr9Q8dNpVW3oWE5iYnLmhnYU';
-
-    fetch('https://walki.us-south.cf.appdomain.cloud/api/subsidiary', {
-      method: 'GET',
-      async: false,
-      headers: {
-        'Authorization': token
-      }
-    })
-    .then((response) => response.json())
-    .then((response) => {
-      this.setState({isRefreshing: false, subsidiaries: [response.rows] })
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-  }
-
   handle = () => {};
 
   deleteFavorite = (id) => {
     let favorites = this.state.favorites;
     let element;
 
+
     element = favorites.findIndex((element) => {
-      return element.id === id;
+      return element._id === id;
     })
 
-    favorites.splice(element, 1);
-    this.setState({people: favorites});
-    Toast.show('Eliminada de favoritos.');
+    fetch(this.state.baseUrl+'user/deleteFavorite', {
+      method: 'DELETE',
+      headers: {
+        'content-type': 'application/json',
+        'Authorization': this.state.token
+      },
+      body: JSON.stringify({
+        subsidiaryid: id,
+        userid: this.state.userid
+      })
+    })
+    .then((response) => response.json())
+    .then((response) => {
+        favorites.splice(element, 1);
+        this.setState({people: favorites});
+        Toast.show('Eliminada de favoritos.');
+    })
+    .catch((error) => {
+      console.error(error);
+    });
   }
 
   onRefresh() {
     this.setState({ isRefreshing: true }); // true isRefreshing flag for enable pull to refresh indicator
     this.getData();
-    // const url = `https://api.stackexchange.com/2.2/users?page=1&order=desc&sort=reputation&site=stackoverflow`;
-    // axios.get(url)
-    //   .then(res => {
-    //     let data = res.data.items
-    //     this.setState({ isRefreshing: false, data: data }) // false isRefreshing flag for disable pull to refresh indicator, and clear all data and store only first page data
-    //   })
-    //   .catch(error => {
-    //     this.setState({ isRefreshing: false, error: 'Something just went wrong' }) // false isRefreshing flag for disable pull to refresh
-    //   });
   }
 
   render() {
@@ -137,7 +125,10 @@ class Login extends Component {
             return (
               <TouchableWithoutFeedback>
                 <View style={[styles.item,(index%4 == 0)?styles.marginTop:null ,(index == 0 || (index+1)%4 == 0 || index%4 == 0) ?styles.itemBigger:null]}>
-                  <ImageBackground style={styles.image} source={item.image} />
+                  <ImageBackground 
+                    style={styles.image} 
+                    source={{uri: this.state.baseUrl + "user/image/" + item.image}} 
+                  />
                   <View style={styles.layer}></View>
                   <View>
                     <Text style={styles.name} value={item.name} />
@@ -147,7 +138,7 @@ class Login extends Component {
                     <IconButton
                       name="like1"
                       color="#ffffff"
-                      onClickEvent={() => this.deleteFavorite(item.id)}
+                      onClickEvent={() => this.deleteFavorite(item._id)}
                     />
                   </View>
 
@@ -168,7 +159,8 @@ const styles = StyleSheet.create({
   c: {},
   grid:{
     width: '100%',
-    display: 'flex'
+    display: 'flex',
+    paddingTop: 30
   },
   item: {
     width: '48%',
@@ -183,6 +175,9 @@ const styles = StyleSheet.create({
   image: {
     height: '100%',
     overflow: 'hidden',
+    resizeMode: 'cover',
+    justifyContent: 'center',
+    flex: 1
   },
   name: {
     position: 'absolute',
