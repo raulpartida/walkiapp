@@ -1,36 +1,48 @@
 import React, {Component} from 'react';
-import {Platform, ToolbarAndroid, StyleSheet} from 'react-native';
+import {PermissionsAndroid, View} from 'react-native';
+import {
+  Platform, 
+  ToolbarAndroid, 
+  Text, 
+  Linking, 
+  StyleSheet, 
+  TouchableOpacity
+} from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
-import ImageView from '../../components/ImageView';
+import ImageButton from '../../components/ImageButton';
 import SubTitleSection from '../../components/SubTitleSection';
-import InputField from '../../components/InputField';
-import NeutralButton from '../../components/NeutralButton';
-import ActionButton from '../../components/ActionButton';
-import ContainerRow from '../../components/ContainerRow';
 import {SocialIcon} from 'react-native-elements';
 import {Tile} from 'react-native-elements';
-import ImageButton from '../../components/ImageButton';
+import { RNCamera } from 'react-native-camera';
+import {green} from '../../assets/colors';
 
 class QRScanner extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+    };
   }
 
-  componentDidMount() {}
+  componentDidMount() {
+  }
+
+  barcodeRecognized = ({ barcodes }) => {
+    barcodes.forEach(barcode => console.warn(barcode.data))
+  };
 
   handle = () => {};
 
   render() {
     return (
       <ScreenContainer style={styles.c}>
-        <ContainerRow style={styles.c}>
-          <ImageButton
-            style={styles.c}
-            url=""
-            onClickEvent={() => this.prop.navigation.goBack()}
-          />
-        </ContainerRow>
+
+          <RNCamera
+            ref={ref => {this.camera = ref;}}
+            style={styles.camera}
+            onGoogleVisionBarcodesDetected={this.barcodeRecognized}
+          >
+          </RNCamera>
+       
       </ScreenContainer>
     );
   }
@@ -39,5 +51,13 @@ class QRScanner extends Component {
 export default QRScanner;
 
 var styles = StyleSheet.create({
-  c: {},
+  c: {
+    padding: 0,
+    height: '100%',
+    borderWidth: 1
+  },
+  camera: {
+    width: '100%',
+    flex: 1
+  }
 });
