@@ -20,7 +20,7 @@ import img2 from '../../assets/images/img2.jpg';
 import img3 from '../../assets/images/img3.jpg';
 import img4 from '../../assets/images/img4.jpg';
 
-class Login extends Component {
+class Favorites extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -153,7 +153,7 @@ class Login extends Component {
   }
 }
 
-export default Login;
+export default Favorites;
 
 const styles = StyleSheet.create({
   c: {},
