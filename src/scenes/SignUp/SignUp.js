@@ -7,15 +7,16 @@ import InputField from '../../components/InputField';
 import SuccessButton from '../../components/SuccessButton';
 import ErrorLabel from '../../components/ErrorLabel';
 import ContainerRow from '../../components/ContainerRow';
-import ImageButton from '../../components/ImageButton';
 import Logo from '../../assets/images/walki-logo-temp.jpeg';
 import IconButton from '../../components/IconButton';
-import {grayText, green} from '../../assets/colors';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import {baseURL} from '../../Constants';
+import Toast from 'react-native-simple-toast';
 
 class SignUp extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       inputs: {
         name: {
@@ -59,9 +60,9 @@ class SignUp extends Component {
   
   createAccount = () => {
     const { inputs } = this.state;
-    
+
     if(!this.verifyFields()){
-      fetch('https://walki.us-south.cf.appdomain.cloud/api/user/registerUsers', {
+      fetch(baseURL + '/user/registerUsers', {
         method: 'POST',
         headers: {
           'Accept':       'application/json',
@@ -79,12 +80,13 @@ class SignUp extends Component {
       .then((response) => response.json())
       .then((responseJson) => {
         if(responseJson.ok){
-          this.login()
+          Toast.show("Usuario registrado exitosamente.");
+          this.props.navigation.goBack()
         }else{
           if(responseJson.message == 'User already exist'){
-            alert("Ya existe un usuario con este email.")
+            Toast.show("Ya existe un usuario con este email.");
           }else{
-            alert("Ocurrió un error. Inténtalo más tarde.")
+            Toast.show("Ocurrió un error. Inténtalo más tarde.");
           }
         }
       })
@@ -94,30 +96,6 @@ class SignUp extends Component {
     }
   }
   
-  login = () => {
-    const { inputs } = this.state;
-
-    fetch('https://walki.us-south.cf.appdomain.cloud/api/user/login', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: inputs.email.value,
-          password: inputs.password.value,
-          getEncrypt: true
-        })
-      })
-      .then((response) => response.text())
-      .then((response) => {
-          // Save token
-          alert("usuario creado:"+ response)
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }
-
   verifyFields(){
     const { inputs } = this.state;
     const regEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -228,7 +206,7 @@ class SignUp extends Component {
             <InputField
               hint="Contraseña"
               label=""
-              secureTextEntry={true}
+              isSecure={true}
               handleInputChange={(text) => this.handle(text, 'password')}
               style={styles.input}
             />
@@ -237,7 +215,7 @@ class SignUp extends Component {
             <InputField
               hint="Confirmar contraseña"
               label=""
-              secureTextEntry={true}
+              isSecure={true}
               handleInputChange={(text) => this.handle(text, 'password2')}
               style={styles.input}
             />
