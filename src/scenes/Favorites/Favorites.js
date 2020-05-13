@@ -105,7 +105,7 @@ class Login extends Component {
           <IconButton
             name="arrowleft"
             color="#9c9c9c"
-            onClickEvent={() => this.prop.navigation.goBack()}
+            onClickEvent={() => this.props.navigation.goBack()}
           />
           <SubTitleSection value="Favoritos" style={styles.c} />
         </ContainerRow>
