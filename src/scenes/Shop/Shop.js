@@ -1,30 +1,192 @@
 import React, {Component} from 'react';
-import {StyleSheet} from 'react-native';
+import {StyleSheet, ImageBackground, View, Text, ScrollView, Animated} from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
 import ImageButton from '../../components/ImageButton';
+import IconButton from '../../components/IconButton';
 import SubTitleSection from '../../components/SubTitleSection';
 import ContainerRow from '../../components/ContainerRow';
+import img1 from '../../assets/images/img1.jpg';
+import GestureRecognizer, {swipeDirections} from 'react-native-swipe-gestures';
 
 class Shop extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      swiped: false,
+      subsidiary: [],
+      animationValue : new Animated.Value(250),
+      baseUrl: 'https://walki.us-south.cf.appdomain.cloud/api/',
+      subsidiaryid: '0dd833143f14ae134c4734a94641d264',
+      token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjUwMjZjZjJjNGY5NzkyNTAwZWNlZWFlYzBhMWQ3NzNjIiwicmV2IjoiMy02ODMxZGI2MjgxOTE5YjViOWNkNTc2MmI5ODZiOTE5NiIsIm5hbWUiOiJTZXJnaW8iLCJlbWFpbCI6ImNoZWNvcm9ibGVzQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNTg5MDg1OTY0fQ.4ttttHOPGreqoHDa0L5fr9Q8dNpVW3oWE5iYnLmhnYU'
+    };
   }
 
-  componentDidMount() {}
+  componentDidMount() {
+    this.getData();
+  }
+
+
+  toggleAnimation=(direction)=>{
+    
+    if(direction == 'down' && this.state.swiped){
+      Animated.timing(this.state.animationValue, {
+        toValue : 250,
+        duration : 210
+      }).start(()=>{
+        this.setState({swiped : false});
+      });
+    }
+    else if(direction == 'up' && !this.state.swiped){
+      Animated.timing(this.state.animationValue, {
+        toValue : 0,
+        duration : 210
+      }).start(()=>{
+        this.setState({swiped : true});
+      });
+    }
+  }
+
+  swipeUp = (gestureState) => {
+    this.toggleAnimation('up');
+  }
+
+  swipeDown = (gestureState) => {
+    this.setState({swiped : true});
+    this.toggleAnimation('down');
+  }
+
+  getData(){
+    fetch(this.state.baseUrl + 'subsidiary/'+ this.state.subsidiaryid, {
+      method: 'GET',
+      headers: {
+        'content-type': 'application/json',
+        'Authorization': this.state.token
+      }
+    })
+    .then((response) => response.json())
+    .then((response) => {
+        // Save token
+        this.setState({subsidiary: response});
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
 
   handle = () => {};
 
   render() {
+    const transformStyle ={
+      transform : [{ 
+        translateY : this.state.animationValue,
+      }]
+    }
+
+    const config = {
+      velocityThreshold: 0.3,
+      directionalOffsetThreshold: 80
+    };
+
     return (
       <ScreenContainer style={styles.c}>
-        <ContainerRow style={styles.c}>
-          <ImageButton
-            style={styles.c}
-            url=""
-            onClickEvent={() => this.prop.navigation.goBack()}
-          />
-          <SubTitleSection value="Favoritos" style={styles.c} />
+        <ContainerRow style={[styles.c, styles.fullHeight]}>
+          <ImageBackground style={styles.cover} source={img1} />
+
+          <View style={styles.prevBtn}>
+            <IconButton
+              color="#9c9c9c"
+              name="arrowleft"
+              onClickEvent={() => this.props.navigation.goBack()}
+            />
+          </View>
+
+
+          <Animated.View  style={[styles.swipe,transformStyle]}>
+            <GestureRecognizer
+              onSwipeUp={(state) => this.swipeUp(state)}
+              onSwipeDown={(state) => this.swipeDown(state)}
+              config={config}
+              style={styles.head}>
+                
+              <View style={styles.head__elements}>
+                <View style={styles.flex1}/>
+                <View style={[styles.flex1, styles.center]}>
+                  <View style={styles.line}/>
+                </View>
+                <View style={[styles.end, styles.flex1]}>
+                  <IconButton
+                    color="#4c4c4c"
+                    name="like2"
+                    onClickEvent={() => this.props.navigation.goBack()}
+                  />
+                </View>
+              </View>
+
+              <Text style={styles.name}>
+                {this.state.subsidiary.name}
+              </Text>
+
+            </GestureRecognizer>
+            
+            <ScrollView>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                  <Text>Hey</Text>
+                </ScrollView>
+            </Animated.View>
         </ContainerRow>
       </ScreenContainer>
     );
@@ -34,5 +196,72 @@ class Shop extends Component {
 export default Shop;
 
 const styles = StyleSheet.create({
-  c: {},
+  c: {
+    padding: 0
+  },
+  prevBtn: {
+    zIndex: 2,
+    position: 'relative'
+  },
+  fullHeight: {
+    height: '100%',
+    flex: 1,
+  },
+  swipe:{
+    zIndex: 2,
+    position: 'absolute',
+    top: 0,
+    height: '100%',
+    width: '100%',
+    backgroundColor: 'white',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    overflow: 'hidden',
+  },
+  cover: {
+    width: '100%',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    height: 280,
+    zIndex: 1
+  },
+  head: {
+    position: 'relative',
+    borderWidth: 2,
+    borderColor: 'transparent',
+    paddingTop: 15
+  },
+  head__elements: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  flex1:{
+    width: '33%'
+  },
+  line:{
+    width: 60,
+    borderRadius: 5,
+    borderWidth: 4,
+    borderColor: "#CfCfCf"
+  },
+  center: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center'
+  },
+  end:{
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-end'
+  },
+  name: {
+    display: 'flex',
+    textAlign: 'center',
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#444"
+  }
 });
