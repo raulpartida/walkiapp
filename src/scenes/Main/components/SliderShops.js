@@ -30,7 +30,12 @@ export default props => {
       renderItem={({item, index}) => {
         return (
           <TouchableWithoutFeedback
-            onPress={() => props.onItemClickEvent(item.id)}>
+            onPress={() =>
+              props.navigation.push('Shop', {
+                id: item.id,
+                token: props.token,
+              })
+            }>
             <View style={styles.item}>
               <ImageBackground source={item.image} style={styles.image} />
               <Text

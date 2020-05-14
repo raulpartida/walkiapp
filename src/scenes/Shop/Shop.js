@@ -8,7 +8,7 @@ import Label from '../../components/Label';
 import ImageButton from '../../components/ImageButton';
 import ContainerRow from '../../components/ContainerRow';
 
-class Login extends Component {
+class Shop extends Component {
   constructor(props) {
     super(props);
     this.state = {};
@@ -19,43 +19,10 @@ class Login extends Component {
   handle = () => {};
 
   render() {
-    return (
-      <ScreenContainer style={style.c}>
-        <ContainerRow style={style.c}>
-          <ImageButton
-            style={styles.c}
-            url=""
-            onClickEvent={() => this.prop.navigation.goBack()}
-          />
-        </ContainerRow>
-        <View style={styles.c}>
-          <SubTitleSection value="Lo quieres, lo tienes..." style={style.c} />
-          <View style={styles.c}>
-            <Text value="raul.partida@gmail.com" style={style.c} />
-            <Label value="Correo electrónico" style={style.c} />
-          </View>
-          <View style={styles.c}>
-            <Text value="33 3333 6666" style={style.c} />
-            <Label value="Teléfono" style={style.c} />
-          </View>
-          <View style={styles.c}>
-            <Text value="20 Junio 1994" style={style.c} />
-            <Label value="Fecha nacimiento" style={style.c} />
-          </View>
-          <ContainerRow style={styles.c}>
-            <Text value="Cambiar contraseña" style={style.c} />
-          </ContainerRow>
-          <ContainerRow style={styles.c}>
-            <Text value="Deshabilitar cuenta" style={style.c} />
-          </ContainerRow>
-        </View>
-      </ScreenContainer>
-    );
+    return <ScreenContainer />;
   }
 }
 
-export default Login;
+export default Shop;
 
-var styles = StyleSheet.create({
-  c: {},
-});
+var styles = StyleSheet.create({});

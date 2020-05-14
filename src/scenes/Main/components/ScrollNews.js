@@ -25,7 +25,13 @@ export default props => {
       )}
       renderItem={({item}) => {
         return (
-          <TouchableWithoutFeedback>
+          <TouchableWithoutFeedback
+            onPress={() =>
+              props.navigation.push('Promotion', {
+                id: item.id,
+                token: props.token,
+              })
+            }>
             <View style={styles.item}>
               <ImageBackground style={styles.image} source={item.doc.image} />
               <View style={styles.body}>

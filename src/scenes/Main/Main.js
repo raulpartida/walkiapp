@@ -137,10 +137,6 @@ class Main extends Component {
     }
   };
 
-  _navigateToShop(id = '') {
-    this.props.navigation.push('Shop');
-  }
-
   render() {
     const categories = [
       {category: 'Plaza', url: '/mall'},
@@ -149,6 +145,7 @@ class Main extends Component {
       {category: 'Salud', url: ''},
       {category: 'Otros', url: '/subsidiary'},
     ];
+    const {user, token} = this.state;
 
     return (
       <ScreenContainer style={styles.parentContainer}>
@@ -158,7 +155,13 @@ class Main extends Component {
               text=""
               name="menuunfold"
               color="#9c9c9c"
-              onClickEvent={() => this.props.navigation.navigate('Menu')}
+              onClickEvent={() =>
+                this.props.navigation.navigate('Menu', {
+                  userName: user.name,
+                  itemId: user.id,
+                  token: token,
+                })
+              }
             />
             <Image source={Logo} style={styles.logo} />
           </ContainerRow>
@@ -169,10 +172,13 @@ class Main extends Component {
           />
           <SliderShops
             shops={this.state.categoryStores}
-            onItemClickEvent={id => this._navigateToShop(id)}
+            navigation={this.props.navigation}
+            token={token}
           />
           <Text value="Novedades" style={styles.textLabel} />
           <ScrollNews
+            navigation={this.props.navigation}
+            token={token}
             offers={
               this.state.offers.length > 5
                 ? this.state.offers.slice(0, 5)
