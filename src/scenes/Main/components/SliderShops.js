@@ -7,25 +7,47 @@ import {
   FlatList,
 } from 'react-native';
 import Text from '../../../components/Text';
+import IconButton from '../../../components/IconButton';
 import {green, grayText, white} from '../../../assets/colors';
 
-export default (props) => {
+export default props => {
   return (
     <FlatList
       horizontal={true}
-      style={props.style}
       data={props.shops}
       showsHorizontalScrollIndicator={false}
+      keyExtractor={item => item.id}
+      ListEmptyComponent={() => (
+        <View style={styles.emptyComponent}>
+          <IconButton name="exception1" color="#9c9c9c" />
+          <Text
+            numberOfLines={12}
+            style={{textAlign: 'center', fontSize: 14}}
+            value="Tiendas no disponibles"
+          />
+        </View>
+      )}
       renderItem={({item, index}) => {
         return (
-          <TouchableWithoutFeedback>
+          <TouchableWithoutFeedback
+            onPress={() =>
+              props.navigation.push('Shop', {
+                id: item.id,
+                token: props.token,
+              })
+            }>
             <View style={styles.item}>
               <ImageBackground source={item.image} style={styles.image} />
-              <Text style={styles.textLabel} value={item.name} />
+              <Text
+                style={styles.textLabel}
+                numberOfLines={1}
+                value={item.doc.name}
+              />
             </View>
           </TouchableWithoutFeedback>
         );
-      }}></FlatList>
+      }}
+    />
   );
 };
 
@@ -53,5 +75,17 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     elevation: 7,
     overflow: 'hidden',
+  },
+  emptyComponent: {
+    width: 120,
+    height: 150,
+    flexDirection: 'column',
+    padding: 10,
+    backgroundColor: white,
+    margin: 5,
+    borderRadius: 10,
+    elevation: 7,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
