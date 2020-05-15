@@ -120,7 +120,7 @@ class Favorites extends Component {
           }
           renderItem={({item, index}) => {
             return (
-              <TouchableWithoutFeedback>
+              <TouchableWithoutFeedback onPress={() => {this.props.navigation.navigate('Shop', {subsidiaryid: item._id });}}>
                 <View style={[styles.item,(index%4 == 0)?styles.marginTop:null ,(index == 0 || (index+1)%4 == 0 || index%4 == 0) ?styles.itemBigger:null]}>
                   <ImageBackground 
                     style={styles.image} 
