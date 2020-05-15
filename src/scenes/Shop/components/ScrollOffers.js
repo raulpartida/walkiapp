@@ -10,6 +10,12 @@ import {
 import Icon from 'react-native-vector-icons/AntDesign';
 
 class ScrollOffers extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      baseUrl: 'https://walki.us-south.cf.appdomain.cloud/api/',
+    }
+  }
     render(){
         return (
             
@@ -21,9 +27,8 @@ class ScrollOffers extends Component {
               return (
                 <TouchableWithoutFeedback>
                   <View style={styles.item}>
-                    <ImageBackground style={styles.image} source={item.image} />
-                    
-                    { item.type == 1 &&
+                    <ImageBackground style={styles.image} source={{uri: this.state.baseUrl + "offer/image/"+ item.image}} />
+                    { item.type === "0" &&
                       <View style={styles.specialOffer}>
                         <Icon
                           name="star"
@@ -60,7 +65,7 @@ const styles = StyleSheet.create({
   },
   image:{
     width: 140,
-    height: 80,
+    height: 90,
     borderRadius: 10,
     overflow: 'hidden'
   },

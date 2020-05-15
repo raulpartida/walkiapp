@@ -11,15 +11,12 @@ import {
 } from 'react-native';
 import Toast from 'react-native-simple-toast';
 import GestureRecognizer, {swipeDirections} from 'react-native-swipe-gestures';
+import moment from "moment";
 import ScreenContainer from '../../components/ScreenContainer';
 import ImageButton from '../../components/ImageButton';
 import IconButton from '../../components/IconButton';
 import SubTitleSection from '../../components/SubTitleSection';
 import ContainerRow from '../../components/ContainerRow';
-import img1 from '../../assets/images/img1.jpg';
-import img2 from '../../assets/images/img2.jpg';
-import img3 from '../../assets/images/img3.jpg';
-import img4 from '../../assets/images/img4.jpg';
 import ScrollOffers from './components/ScrollOffers';
 
 
@@ -31,22 +28,8 @@ class Shop extends Component {
       favorite: false,
       subsidiary: [],
       subsidiaries: [],
-      offers: [
-        {
-          _id: '0c1a89f91a9b501d4084910bd857c8db',
-          image: img1,
-          name: 'Escaleras de aluminio, todos los tamaños, 15%',
-          department: 'Hogar y decoración',
-          type: 1
-        },
-        {
-          _id: '12d29aff5a3a55d8dc60b2d25cd5ee80',
-          image: img2,
-          name: '50% de descuento en el segundo par',
-          department: 'Zapatería y calzado',
-          type: 2
-        }
-      ],
+      departments: [],
+      offers: [],
       animationValue : new Animated.Value(250),
       baseUrl: 'https://walki.us-south.cf.appdomain.cloud/api/',
       subsidiaryid: '0dd833143f14ae134c4734a94641d264',
@@ -58,6 +41,132 @@ class Shop extends Component {
   componentDidMount() {
     this.getData();
     this.getFavorites();
+    this.getDepartments();
+  }
+
+  getData(){
+    fetch(this.state.baseUrl + 'subsidiary/'+ this.state.subsidiaryid, {
+      method: 'GET',
+      headers: {
+        'content-type': 'application/json',
+        'Authorization': this.state.token
+      }
+    })
+    .then((response) => response.json())
+    .then((response) => {
+        // Save token
+        this.setState({subsidiary: response});
+        this.getSubsidiaries();
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
+
+  getFavorites(){
+    let favorites = [];
+
+    fetch(this.state.baseUrl + 'user/getFavorite/'+ this.state.userid, {
+      method: 'GET',
+      async: true,
+      headers: {
+        'content-type': 'application/json',
+        'Authorization': this.state.token
+      }
+    })
+    .then((response) => response.json())
+    .then((response) => {
+        if(!response.message){
+          favorites = response.arreglo_jsons_favorites;
+
+          if(favorites.find(item => item._id == this.state.subsidiaryid)){
+            this.setState({favorite: true});
+          }
+        }
+    })
+    .catch((error) => {
+    });
+  }
+
+  getSubsidiaries(){
+    fetch(this.state.baseUrl + 'subsidiary/bySeller/'+ this.state.subsidiary.userid, {
+      method: 'GET',
+      headers: {
+        'content-type': 'application/json',
+        'Authorization': this.state.token
+      }
+    })
+    .then((response) => response.json())
+    .then((response) => {
+
+        if(response.docs && response.docs.length){
+          let index = response.docs.findIndex(item => item._id == this.state.subsidiaryid)
+
+          if (index !== -1) {
+            response.docs.splice(index, 1);
+            this.setState({subsidiaries: response.docs});
+          }
+
+        }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
+
+  getDepartments(){
+    fetch(this.state.baseUrl + 'department/', {
+      method: 'GET',
+      headers: {
+        'content-type': 'application/json',
+        'Authorization': this.state.token
+      }
+    })
+    .then((response) => response.json())
+    .then((response) => {
+        if(response.total_rows){
+          this.setState({departments: response.rows});
+          this.getOffers();
+        }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
+
+  getOffers(){
+    fetch(this.state.baseUrl + 'subsidiary/OffersFromSubsidiary/'+ this.state.subsidiaryid, {
+      method: 'GET',
+      headers: {
+        'content-type': 'application/json',
+        'Authorization': this.state.token
+      }
+    })
+    .then((response) => response.json())
+    .then((response) => {
+        if(response.message){
+          const now = moment();
+
+          let offers = response.message.filter(function(item){
+            if (now.diff(moment(item.finishDate)) <= 0) {
+              return item;
+            }
+          })
+
+          offers.map((offer) => {
+            let currentDepartment = this.state.departments.find(department => department.id == offer.departmentid);
+
+            if (currentDepartment) {
+              offer['department'] = currentDepartment.doc.name;
+            }
+          });
+
+          this.setState({offers: offers})
+        }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
   }
 
 
@@ -130,76 +239,6 @@ class Shop extends Component {
     }else{
       this.toggleAnimation('down');
     }
-  }
-
-  getData(){
-    fetch(this.state.baseUrl + 'subsidiary/'+ this.state.subsidiaryid, {
-      method: 'GET',
-      headers: {
-        'content-type': 'application/json',
-        'Authorization': this.state.token
-      }
-    })
-    .then((response) => response.json())
-    .then((response) => {
-        // Save token
-        this.setState({subsidiary: response});
-        this.getSubsidiaries();
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-  }
-
-  getFavorites(){
-    let favorites = [];
-
-    fetch(this.state.baseUrl + 'user/getFavorite/'+ this.state.userid, {
-      method: 'GET',
-      async: true,
-      headers: {
-        'content-type': 'application/json',
-        'Authorization': this.state.token
-      }
-    })
-    .then((response) => response.json())
-    .then((response) => {
-        if(!response.message){
-          favorites = response.arreglo_jsons_favorites;
-
-          if(favorites.find(item => item._id == this.state.subsidiaryid)){
-            this.setState({favorite: true});
-          }
-        }
-    })
-    .catch((error) => {
-    });
-  }
-
-  getSubsidiaries(){
-    fetch(this.state.baseUrl + 'subsidiary/bySeller/'+ this.state.subsidiary.userid, {
-      method: 'GET',
-      headers: {
-        'content-type': 'application/json',
-        'Authorization': this.state.token
-      }
-    })
-    .then((response) => response.json())
-    .then((response) => {
-
-        if(response.docs && response.docs.length){
-          let index = response.docs.findIndex(item => item._id == this.state.subsidiaryid)
-
-          if (index !== -1) {
-            response.docs.splice(index, 1);
-            this.setState({subsidiaries: response.docs});
-          }
-
-        }
-    })
-    .catch((error) => {
-      console.error(error);
-    });
   }
 
   handle = () => {};
