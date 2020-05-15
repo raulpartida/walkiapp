@@ -15,7 +15,8 @@ import IconButton from '../../components/IconButton';
 import SubTitleSection from '../../components/SubTitleSection';
 import ContainerRow from '../../components/ContainerRow';
 import Text from '../../components/Text';
-
+import {baseURL} from '../../Constants';
+import AsyncStorage from '@react-native-community/async-storage';
 
 class Favorites extends Component {
   constructor(props) {
@@ -24,18 +25,32 @@ class Favorites extends Component {
       favorites: [],
       subsidiaries: [],
       isRefreshing: false,
-      baseUrl: 'https://walki.us-south.cf.appdomain.cloud/api/',
       userid: '5026cf2c4f9792500eceeaec0a1d773c',
       token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjUwMjZjZjJjNGY5NzkyNTAwZWNlZWFlYzBhMWQ3NzNjIiwicmV2IjoiMy02ODMxZGI2MjgxOTE5YjViOWNkNTc2MmI5ODZiOTE5NiIsIm5hbWUiOiJTZXJnaW8iLCJlbWFpbCI6ImNoZWNvcm9ibGVzQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNTg5MDg1OTY0fQ.4ttttHOPGreqoHDa0L5fr9Q8dNpVW3oWE5iYnLmhnYU'
     };
   }
 
   componentDidMount() {
-    this.getData();
+    this.getToken();
+  }
+
+  getToken = async () => {
+    try {
+      const tokenResponse = await AsyncStorage.getItem('token');
+      const user = await AsyncStorage.getItem('user');
+      this.setState({user: JSON.parse(user).payload});
+      alert(this.state.user.id)
+      if (tokenResponse !== null && tokenResponse !== undefined){
+        this.setState({token: tokenResponse});
+        this.getData();
+      }
+    } catch (error) {
+      console.error('Exception:', error);
+    }
   }
 
   getData(){
-    fetch(this.state.baseUrl+'user/getFavorite/'+this.state.userid, {
+    fetch(baseURL+'/user/getFavorite/'+this.state.user.id, {
       method: 'GET',
       async: true,
       headers: {
@@ -69,7 +84,7 @@ class Favorites extends Component {
       return element._id === id;
     })
 
-    fetch(this.state.baseUrl+'user/deleteFavorite', {
+    fetch(baseURL+'/user/deleteFavorite', {
       method: 'DELETE',
       headers: {
         'content-type': 'application/json',
@@ -77,7 +92,7 @@ class Favorites extends Component {
       },
       body: JSON.stringify({
         subsidiaryid: id,
-        userid: this.state.userid
+        userid: this.state.user.id
       })
     })
     .then((response) => response.json())
@@ -125,7 +140,7 @@ class Favorites extends Component {
                 <View style={[styles.item,(index%4 == 0)?styles.marginTop:null ,(index == 0 || (index+1)%4 == 0 || index%4 == 0) ?styles.itemBigger:null]}>
                   <ImageBackground 
                     style={styles.image} 
-                    source={{uri: this.state.baseUrl + "subsidiary/image/" + item.image}} 
+                    source={{uri: baseURL + "/subsidiary/image/" + item.image}} 
                   />
                   <View style={styles.layer}></View>
                   <View>

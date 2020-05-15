@@ -46,7 +46,7 @@ const TabStackScreen = () => (
           iconName = focused ? 'home' : 'home';
         } else if (route.name === 'QR Code') {
           iconName = focused ? 'qrcode' : 'qrcode';
-        } else if (route.name === 'Favoritos') {
+        } else if (route.name === 'Favorites') {
           iconName = focused ? 'star' : 'staro';
         }
 
