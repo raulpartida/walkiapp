@@ -55,7 +55,7 @@ const TabStackScreen = () => (
     })}>
     <Tabs.Screen name="Home" component={Main} />
     <Tabs.Screen name="QR Code" component={QRScanner} />
-    <Tabs.Screen name="Favoritos" component={Favorites} />
+    <Tabs.Screen name="Favorites" component={Favorites} />
   </Tabs.Navigator>
 );
 

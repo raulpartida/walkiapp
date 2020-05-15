@@ -1,54 +1,326 @@
 import React, {Component} from 'react';
-import {SafeAreaView, View, StyleSheet} from 'react-native';
+import {
+  StyleSheet, 
+  ImageBackground, 
+  View, 
+  Text, 
+  ScrollView, 
+  Animated, 
+  TouchableWithoutFeedback,
+  Alert
+} from 'react-native';
+import Toast from 'react-native-simple-toast';
+import GestureRecognizer, {swipeDirections} from 'react-native-swipe-gestures';
+import moment from "moment";
 import ScreenContainer from '../../components/ScreenContainer';
-import ImageView from '../../components/ImageView';
-import SubTitleSection from '../../components/SubTitleSection';
-import Text from '../../components/Text';
-import Label from '../../components/Label';
 import ImageButton from '../../components/ImageButton';
+import IconButton from '../../components/IconButton';
+import SubTitleSection from '../../components/SubTitleSection';
 import ContainerRow from '../../components/ContainerRow';
+import ScrollOffers from './components/ScrollOffers';
+
 
 class Shop extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      swiped: false,
+      favorite: false,
+      subsidiary: [],
+      subsidiaries: [],
+      departments: [],
+      offers: [],
+      animationValue : new Animated.Value(250),
+      baseUrl: 'https://walki.us-south.cf.appdomain.cloud/api/',
+      subsidiaryid: '0dd833143f14ae134c4734a94641d264',
+      userid: '5026cf2c4f9792500eceeaec0a1d773c',
+      token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjUwMjZjZjJjNGY5NzkyNTAwZWNlZWFlYzBhMWQ3NzNjIiwicmV2IjoiMy02ODMxZGI2MjgxOTE5YjViOWNkNTc2MmI5ODZiOTE5NiIsIm5hbWUiOiJTZXJnaW8iLCJlbWFpbCI6ImNoZWNvcm9ibGVzQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNTg5MDg1OTY0fQ.4ttttHOPGreqoHDa0L5fr9Q8dNpVW3oWE5iYnLmhnYU'
+    };
   }
 
-  componentDidMount() {}
+  componentDidMount() {
+    this.getData();
+    this.getFavorites();
+    this.getDepartments();
+  }
+
+  getData(){
+    fetch(this.state.baseUrl + 'subsidiary/'+ this.state.subsidiaryid, {
+      method: 'GET',
+      headers: {
+        'content-type': 'application/json',
+        'Authorization': this.state.token
+      }
+    })
+    .then((response) => response.json())
+    .then((response) => {
+        // Save token
+        this.setState({subsidiary: response});
+        this.getSubsidiaries();
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
+
+  getFavorites(){
+    let favorites = [];
+
+    fetch(this.state.baseUrl + 'user/getFavorite/'+ this.state.userid, {
+      method: 'GET',
+      async: true,
+      headers: {
+        'content-type': 'application/json',
+        'Authorization': this.state.token
+      }
+    })
+    .then((response) => response.json())
+    .then((response) => {
+        if(!response.message){
+          favorites = response.arreglo_jsons_favorites;
+
+          if(favorites.find(item => item._id == this.state.subsidiaryid)){
+            this.setState({favorite: true});
+          }
+        }
+    })
+    .catch((error) => {
+    });
+  }
+
+  getSubsidiaries(){
+    fetch(this.state.baseUrl + 'subsidiary/bySeller/'+ this.state.subsidiary.userid, {
+      method: 'GET',
+      headers: {
+        'content-type': 'application/json',
+        'Authorization': this.state.token
+      }
+    })
+    .then((response) => response.json())
+    .then((response) => {
+
+        if(response.docs && response.docs.length){
+          let index = response.docs.findIndex(item => item._id == this.state.subsidiaryid)
+
+          if (index !== -1) {
+            response.docs.splice(index, 1);
+            this.setState({subsidiaries: response.docs});
+          }
+
+        }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
+
+  getDepartments(){
+    fetch(this.state.baseUrl + 'department/', {
+      method: 'GET',
+      headers: {
+        'content-type': 'application/json',
+        'Authorization': this.state.token
+      }
+    })
+    .then((response) => response.json())
+    .then((response) => {
+        if(response.total_rows){
+          this.setState({departments: response.rows});
+          this.getOffers();
+        }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
+
+  getOffers(){
+    fetch(this.state.baseUrl + 'subsidiary/OffersFromSubsidiary/'+ this.state.subsidiaryid, {
+      method: 'GET',
+      headers: {
+        'content-type': 'application/json',
+        'Authorization': this.state.token
+      }
+    })
+    .then((response) => response.json())
+    .then((response) => {
+        if(response.message){
+          const now = moment();
+
+          let offers = response.message.filter(function(item){
+            if (now.diff(moment(item.finishDate)) <= 0) {
+              return item;
+            }
+          })
+
+          offers.map((offer) => {
+            let currentDepartment = this.state.departments.find(department => department.id == offer.departmentid);
+
+            if (currentDepartment) {
+              offer['department'] = currentDepartment.doc.name;
+            }
+          });
+
+          this.setState({offers: offers})
+        }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
+
+
+  toggleAnimation=(direction)=>{
+    
+    if(direction == 'down' && this.state.swiped){
+      Animated.timing(this.state.animationValue, {
+        toValue : 250,
+        duration : 210
+      }).start(()=>{
+        this.setState({swiped : false});
+      });
+    }
+    else if(direction == 'up' && !this.state.swiped){
+      Animated.timing(this.state.animationValue, {
+        toValue : 0,
+        duration : 210
+      }).start(()=>{
+        this.setState({swiped : true});
+      });
+    }
+  }
+
+  toggleFavorite = () => {
+    let route = 'addFavorite';
+    let method = 'PUT';
+    let message = 'Añadido a favoritos';
+
+    if(this.state.favorite){
+      route = 'deleteFavorite';
+      method = 'DELETE';
+      message = 'Eliminado de favoritos';
+    }
+
+    fetch(this.state.baseUrl + 'user/'+ route, {
+      method: method,
+      headers: {
+        'content-type': 'application/json',
+        'Authorization': this.state.token
+      },
+      body: JSON.stringify({
+        subsidiaryid: this.state.subsidiaryid,
+        userid: this.state.userid
+      })
+    })
+    .then((response) => response.json())
+    .then((response) => {
+        // Save token
+        if(response.ok){
+          Toast.show(message, Toast.LONG);
+          this.setState({favorite: !this.state.favorite})
+        }
+    })
+    .catch((error) => {
+    });
+  }
+
+  swipeUp = (gestureState) => {
+    this.toggleAnimation('up');
+  }
+
+  swipeDown = (gestureState) => {
+    this.setState({swiped : true});
+    this.toggleAnimation('down');
+  }
+
+  toggleSwipe = () =>{
+    if(!this.state.swiped){
+      this.toggleAnimation('up');
+    }else{
+      this.toggleAnimation('down');
+    }
+  }
 
   handle = () => {};
 
   render() {
+    const transformStyle ={
+      transform : [{ 
+        translateY : this.state.animationValue,
+      }]
+    }
+
+    const config = {
+      velocityThreshold: 0.3,
+      directionalOffsetThreshold: 80
+    };
+
     return (
       <ScreenContainer style={styles.c}>
-        <ContainerRow style={styles.c}>
-          <ImageButton
-            style={styles.c}
-            url=""
-            onClickEvent={() => this.prop.navigation.goBack()}
-          />
+        <ContainerRow style={[styles.c, styles.fullHeight]}>
+          <ImageBackground style={styles.cover} source={{uri: this.state.baseUrl +"subsidiary/image/"+this.state.subsidiary.image}} />
+
+          <View style={styles.prevBtn}>
+            <IconButton
+              color="#9c9c9c"
+              name="arrowleft"
+              onClickEvent={() => this.props.navigation.goBack()}
+            />
+          </View>
+
+
+          <Animated.View  style={[styles.swipe,transformStyle]}>
+            <GestureRecognizer
+              onSwipeUp={(state) => this.swipeUp(state)}
+              onSwipeDown={(state) => this.swipeDown(state)}
+              config={config}
+              style={styles.head}>
+                
+              <TouchableWithoutFeedback onPress={()=> this.toggleSwipe()}>
+                <View style={styles.head__elements}>
+                  <View style={styles.flex1}/>
+                  <View style={[styles.flex1, styles.center]}>
+                    <View style={styles.line}/>
+                  </View>
+                  <View style={[styles.end, styles.flex1]}>
+                    <IconButton
+                      color="#4c4c4c"
+                      name={(!this.state.favorite)?'like2':'like1'}
+                      onClickEvent={() => this.toggleFavorite()}
+                    />
+                  </View>
+                </View>
+              </TouchableWithoutFeedback>
+
+              <Text style={styles.name}>
+                {this.state.subsidiary.name}
+              </Text>
+            </GestureRecognizer>
+            
+            <View style={styles.body}>
+
+              {this.state.subsidiaries.length > 0 &&
+                <Text style={styles.subsidiariesText}>
+                  Otras sucursales
+                </Text>
+              }
+
+              {(this.state.offers.length)
+              ? 
+                <View>
+                  <Text style={styles.subsidiariesText}>
+                    Ofertas vigentes
+                  </Text>
+                  <ScrollOffers offers={this.state.offers}>
+                  </ScrollOffers>
+                </View>
+
+              : <Text>Actualmente no existen ofertas vigentes</Text>
+              }
+            </View>
+
+          </Animated.View>
         </ContainerRow>
-        <View style={styles.c}>
-          <SubTitleSection value="Lo quieres, lo tienes..." style={styles.c} />
-          <View style={styles.c}>
-            <Text value="raul.partida@gmail.com" style={styles.c} />
-            <Label value="Correo electrónico" style={styles.c} />
-          </View>
-          <View style={styles.c}>
-            <Text value="33 3333 6666" style={styles.c} />
-            <Label value="Teléfono" style={styles.c} />
-          </View>
-          <View style={styles.c}>
-            <Text value="20 Junio 1994" style={styles.c} />
-            <Label value="Fecha nacimiento" style={styles.c} />
-          </View>
-          <ContainerRow style={styles.c}>
-            <Text value="Cambiar contraseña" style={styles.c} />
-          </ContainerRow>
-          <ContainerRow style={styles.c}>
-            <Text value="Deshabilitar cuenta" style={styles.c} />
-          </ContainerRow>
-        </View>
       </ScreenContainer>
     );
   }
@@ -56,4 +328,84 @@ class Shop extends Component {
 
 export default Shop;
 
-var styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  c: {
+    padding: 0
+  },
+  prevBtn: {
+    zIndex: 2,
+    position: 'relative'
+  },
+  fullHeight: {
+    height: '100%',
+    flex: 1,
+  },
+  swipe:{
+    zIndex: 2,
+    position: 'absolute',
+    top: 0,
+    height: '100%',
+    width: '100%',
+    backgroundColor: 'white',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    overflow: 'hidden',
+  },
+  cover: {
+    width: '100%',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    height: 280,
+    zIndex: 1
+  },
+  head: {
+    position: 'relative',
+    borderWidth: 2,
+    borderColor: 'transparent',
+    paddingTop: 15
+  },
+  head__elements: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  flex1:{
+    width: '33%'
+  },
+  line:{
+    width: 60,
+    borderRadius: 5,
+    borderWidth: 4,
+    borderColor: "#CfCfCf"
+  },
+  center: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center'
+  },
+  end:{
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-end'
+  },
+  name: {
+    display: 'flex',
+    textAlign: 'center',
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#444"
+  },
+  subsidiariesText:{
+    color: '#555',
+    fontSize: 18
+  },
+  body:{
+    paddingTop: 20,
+    paddingLeft: 20,
+    paddingBottom: 20,
+    paddingRight: 5
+  }
+});
+
