@@ -8,21 +8,21 @@ import {
 import Text from '../../../components/Text';
 import {green, grayText, white} from '../../../assets/colors';
 
-export default (props) => {
+export default props => {
   return (
     <ScrollView
       horizontal={true}
       style={styles.scrollBar}
       showsHorizontalScrollIndicator={false}>
-      {props.options.map(function (option) {
-        return (
-          <TouchableWithoutFeedback>
-            <View>
-              <Text style={styles.discoverStyle} value={option} />
-            </View>
-          </TouchableWithoutFeedback>
-        );
-      })}
+      {props.options.map((option, index) => (
+        <TouchableWithoutFeedback
+          key={index}
+          onPress={() => props.onItemClickEvent(option.url)}>
+          <View>
+            <Text style={styles.discoverStyle} value={option.category} />
+          </View>
+        </TouchableWithoutFeedback>
+      ))}
     </ScrollView>
   );
 };

@@ -16,8 +16,6 @@ export default props => {
 const styles = StyleSheet.create({
   btn: {
     backgroundColor: green,
-    color: white,
-    textAlign: 'center',
-    flexDirection: 'row',
+    height: 50
   },
 });

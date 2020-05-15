@@ -8,7 +8,7 @@ import Label from '../../components/Label';
 import ImageButton from '../../components/ImageButton';
 import ContainerRow from '../../components/ContainerRow';
 
-class Login extends Component {
+class Shop extends Component {
   constructor(props) {
     super(props);
     this.state = {};
@@ -54,8 +54,6 @@ class Login extends Component {
   }
 }
 
-export default Login;
+export default Shop;
 
-var styles = StyleSheet.create({
-  c: {},
-});
+var styles = StyleSheet.create({});
