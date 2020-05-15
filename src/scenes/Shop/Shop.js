@@ -1,28 +1,63 @@
 import React, {Component} from 'react';
-import {StyleSheet, ImageBackground, View, Text, ScrollView, Animated} from 'react-native';
+import {
+  StyleSheet, 
+  ImageBackground, 
+  View, 
+  Text, 
+  ScrollView, 
+  Animated, 
+  TouchableWithoutFeedback,
+  Alert
+} from 'react-native';
+import Toast from 'react-native-simple-toast';
+import GestureRecognizer, {swipeDirections} from 'react-native-swipe-gestures';
 import ScreenContainer from '../../components/ScreenContainer';
 import ImageButton from '../../components/ImageButton';
 import IconButton from '../../components/IconButton';
 import SubTitleSection from '../../components/SubTitleSection';
 import ContainerRow from '../../components/ContainerRow';
 import img1 from '../../assets/images/img1.jpg';
-import GestureRecognizer, {swipeDirections} from 'react-native-swipe-gestures';
+import img2 from '../../assets/images/img2.jpg';
+import img3 from '../../assets/images/img3.jpg';
+import img4 from '../../assets/images/img4.jpg';
+import ScrollOffers from './components/ScrollOffers';
+
 
 class Shop extends Component {
   constructor(props) {
     super(props);
     this.state = {
       swiped: false,
+      favorite: false,
       subsidiary: [],
+      subsidiaries: [],
+      offers: [
+        {
+          _id: '0c1a89f91a9b501d4084910bd857c8db',
+          image: img1,
+          name: 'Escaleras de aluminio, todos los tamaños, 15%',
+          department: 'Hogar y decoración',
+          type: 1
+        },
+        {
+          _id: '12d29aff5a3a55d8dc60b2d25cd5ee80',
+          image: img2,
+          name: '50% de descuento en el segundo par',
+          department: 'Zapatería y calzado',
+          type: 2
+        }
+      ],
       animationValue : new Animated.Value(250),
       baseUrl: 'https://walki.us-south.cf.appdomain.cloud/api/',
       subsidiaryid: '0dd833143f14ae134c4734a94641d264',
+      userid: '5026cf2c4f9792500eceeaec0a1d773c',
       token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjUwMjZjZjJjNGY5NzkyNTAwZWNlZWFlYzBhMWQ3NzNjIiwicmV2IjoiMy02ODMxZGI2MjgxOTE5YjViOWNkNTc2MmI5ODZiOTE5NiIsIm5hbWUiOiJTZXJnaW8iLCJlbWFpbCI6ImNoZWNvcm9ibGVzQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNTg5MDg1OTY0fQ.4ttttHOPGreqoHDa0L5fr9Q8dNpVW3oWE5iYnLmhnYU'
     };
   }
 
   componentDidMount() {
     this.getData();
+    this.getFavorites();
   }
 
 
@@ -46,6 +81,40 @@ class Shop extends Component {
     }
   }
 
+  toggleFavorite = () => {
+    let route = 'addFavorite';
+    let method = 'PUT';
+    let message = 'Añadido a favoritos';
+
+    if(this.state.favorite){
+      route = 'deleteFavorite';
+      method = 'DELETE';
+      message = 'Eliminado de favoritos';
+    }
+
+    fetch(this.state.baseUrl + 'user/'+ route, {
+      method: method,
+      headers: {
+        'content-type': 'application/json',
+        'Authorization': this.state.token
+      },
+      body: JSON.stringify({
+        subsidiaryid: this.state.subsidiaryid,
+        userid: this.state.userid
+      })
+    })
+    .then((response) => response.json())
+    .then((response) => {
+        // Save token
+        if(response.ok){
+          Toast.show(message, Toast.LONG);
+          this.setState({favorite: !this.state.favorite})
+        }
+    })
+    .catch((error) => {
+    });
+  }
+
   swipeUp = (gestureState) => {
     this.toggleAnimation('up');
   }
@@ -53,6 +122,14 @@ class Shop extends Component {
   swipeDown = (gestureState) => {
     this.setState({swiped : true});
     this.toggleAnimation('down');
+  }
+
+  toggleSwipe = () =>{
+    if(!this.state.swiped){
+      this.toggleAnimation('up');
+    }else{
+      this.toggleAnimation('down');
+    }
   }
 
   getData(){
@@ -67,6 +144,58 @@ class Shop extends Component {
     .then((response) => {
         // Save token
         this.setState({subsidiary: response});
+        this.getSubsidiaries();
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
+
+  getFavorites(){
+    let favorites = [];
+
+    fetch(this.state.baseUrl + 'user/getFavorite/'+ this.state.userid, {
+      method: 'GET',
+      async: true,
+      headers: {
+        'content-type': 'application/json',
+        'Authorization': this.state.token
+      }
+    })
+    .then((response) => response.json())
+    .then((response) => {
+        if(!response.message){
+          favorites = response.arreglo_jsons_favorites;
+
+          if(favorites.find(item => item._id == this.state.subsidiaryid)){
+            this.setState({favorite: true});
+          }
+        }
+    })
+    .catch((error) => {
+    });
+  }
+
+  getSubsidiaries(){
+    fetch(this.state.baseUrl + 'subsidiary/bySeller/'+ this.state.subsidiary.userid, {
+      method: 'GET',
+      headers: {
+        'content-type': 'application/json',
+        'Authorization': this.state.token
+      }
+    })
+    .then((response) => response.json())
+    .then((response) => {
+
+        if(response.docs && response.docs.length){
+          let index = response.docs.findIndex(item => item._id == this.state.subsidiaryid)
+
+          if (index !== -1) {
+            response.docs.splice(index, 1);
+            this.setState({subsidiaries: response.docs});
+          }
+
+        }
     })
     .catch((error) => {
       console.error(error);
@@ -90,7 +219,7 @@ class Shop extends Component {
     return (
       <ScreenContainer style={styles.c}>
         <ContainerRow style={[styles.c, styles.fullHeight]}>
-          <ImageBackground style={styles.cover} source={img1} />
+          <ImageBackground style={styles.cover} source={{uri: this.state.baseUrl +"subsidiary/image/"+this.state.subsidiary.image}} />
 
           <View style={styles.prevBtn}>
             <IconButton
@@ -108,85 +237,50 @@ class Shop extends Component {
               config={config}
               style={styles.head}>
                 
-              <View style={styles.head__elements}>
-                <View style={styles.flex1}/>
-                <View style={[styles.flex1, styles.center]}>
-                  <View style={styles.line}/>
+              <TouchableWithoutFeedback onPress={()=> this.toggleSwipe()}>
+                <View style={styles.head__elements}>
+                  <View style={styles.flex1}/>
+                  <View style={[styles.flex1, styles.center]}>
+                    <View style={styles.line}/>
+                  </View>
+                  <View style={[styles.end, styles.flex1]}>
+                    <IconButton
+                      color="#4c4c4c"
+                      name={(!this.state.favorite)?'like2':'like1'}
+                      onClickEvent={() => this.toggleFavorite()}
+                    />
+                  </View>
                 </View>
-                <View style={[styles.end, styles.flex1]}>
-                  <IconButton
-                    color="#4c4c4c"
-                    name="like2"
-                    onClickEvent={() => this.props.navigation.goBack()}
-                  />
-                </View>
-              </View>
+              </TouchableWithoutFeedback>
 
               <Text style={styles.name}>
                 {this.state.subsidiary.name}
               </Text>
-
             </GestureRecognizer>
             
-            <ScrollView>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                  <Text>Hey</Text>
-                </ScrollView>
-            </Animated.View>
+            <View style={styles.body}>
+
+              {this.state.subsidiaries.length > 0 &&
+                <Text style={styles.subsidiariesText}>
+                  Otras sucursales
+                </Text>
+              }
+
+              {(this.state.offers.length)
+              ? 
+                <View>
+                  <Text style={styles.subsidiariesText}>
+                    Ofertas vigentes
+                  </Text>
+                  <ScrollOffers offers={this.state.offers}>
+                  </ScrollOffers>
+                </View>
+
+              : <Text>Actualmente no existen ofertas vigentes</Text>
+              }
+            </View>
+
+          </Animated.View>
         </ContainerRow>
       </ScreenContainer>
     );
@@ -263,5 +357,15 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "700",
     color: "#444"
+  },
+  subsidiariesText:{
+    color: '#555',
+    fontSize: 18
+  },
+  body:{
+    paddingTop: 20,
+    paddingLeft: 20,
+    paddingBottom: 20,
+    paddingRight: 5
   }
 });
