@@ -9,16 +9,20 @@ import {
   TouchableWithoutFeedback,
   Alert
 } from 'react-native';
+import {baseURL} from '../../Constants';
+import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-simple-toast';
 import GestureRecognizer, {swipeDirections} from 'react-native-swipe-gestures';
 import moment from "moment";
+
 import ScreenContainer from '../../components/ScreenContainer';
+import Icon from 'react-native-vector-icons/AntDesign';
 import ImageButton from '../../components/ImageButton';
 import IconButton from '../../components/IconButton';
 import SubTitleSection from '../../components/SubTitleSection';
 import ContainerRow from '../../components/ContainerRow';
 import ScrollOffers from './components/ScrollOffers';
-
+import SubsidiariesList from './components/SubsidiariesList';
 
 class Shop extends Component {
   constructor(props) {
@@ -31,21 +35,34 @@ class Shop extends Component {
       departments: [],
       offers: [],
       animationValue : new Animated.Value(250),
-      baseUrl: 'https://walki.us-south.cf.appdomain.cloud/api/',
-      subsidiaryid: '0dd833143f14ae134c4734a94641d264',
-      userid: '5026cf2c4f9792500eceeaec0a1d773c',
+      subsidiaryid: this.props.route.params.subsidiaryid,
       token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjUwMjZjZjJjNGY5NzkyNTAwZWNlZWFlYzBhMWQ3NzNjIiwicmV2IjoiMy02ODMxZGI2MjgxOTE5YjViOWNkNTc2MmI5ODZiOTE5NiIsIm5hbWUiOiJTZXJnaW8iLCJlbWFpbCI6ImNoZWNvcm9ibGVzQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNTg5MDg1OTY0fQ.4ttttHOPGreqoHDa0L5fr9Q8dNpVW3oWE5iYnLmhnYU'
     };
   }
 
   componentDidMount() {
-    this.getData();
-    this.getFavorites();
-    this.getDepartments();
+    this.getToken();
+  }
+
+  getToken = async () => {
+    try {
+      const tokenResponse = await AsyncStorage.getItem('token');
+      const user = await AsyncStorage.getItem('user');
+      this.setState({user: JSON.parse(user).payload});
+
+      if (tokenResponse !== null && tokenResponse !== undefined){
+        this.setState({token: tokenResponse});
+        this.getData();
+        this.getFavorites();
+        this.getDepartments();
+      }
+    } catch (error) {
+      console.error('Exception:', error);
+    }
   }
 
   getData(){
-    fetch(this.state.baseUrl + 'subsidiary/'+ this.state.subsidiaryid, {
+    fetch(baseURL + '/subsidiary/'+ this.state.subsidiaryid, {
       method: 'GET',
       headers: {
         'content-type': 'application/json',
@@ -66,7 +83,7 @@ class Shop extends Component {
   getFavorites(){
     let favorites = [];
 
-    fetch(this.state.baseUrl + 'user/getFavorite/'+ this.state.userid, {
+    fetch(baseURL + '/user/getFavorite/'+ this.state.user.id, {
       method: 'GET',
       async: true,
       headers: {
@@ -89,7 +106,7 @@ class Shop extends Component {
   }
 
   getSubsidiaries(){
-    fetch(this.state.baseUrl + 'subsidiary/bySeller/'+ this.state.subsidiary.userid, {
+    fetch(baseURL + '/subsidiary/bySeller/'+ this.state.subsidiary.userid, {
       method: 'GET',
       headers: {
         'content-type': 'application/json',
@@ -99,12 +116,13 @@ class Shop extends Component {
     .then((response) => response.json())
     .then((response) => {
 
-        if(response.docs && response.docs.length){
-          let index = response.docs.findIndex(item => item._id == this.state.subsidiaryid)
-
-          if (index !== -1) {
-            response.docs.splice(index, 1);
-            this.setState({subsidiaries: response.docs});
+      if(response.docs && response.docs.length){
+        let index = response.docs.findIndex(item => item._id == this.state.subsidiaryid)
+        
+        
+        if (index !== -1) {
+          response.docs.splice(index, 1);
+          this.setState({subsidiaries: response.docs});
           }
 
         }
@@ -115,7 +133,7 @@ class Shop extends Component {
   }
 
   getDepartments(){
-    fetch(this.state.baseUrl + 'department/', {
+    fetch(baseURL + '/department/', {
       method: 'GET',
       headers: {
         'content-type': 'application/json',
@@ -135,7 +153,7 @@ class Shop extends Component {
   }
 
   getOffers(){
-    fetch(this.state.baseUrl + 'subsidiary/OffersFromSubsidiary/'+ this.state.subsidiaryid, {
+    fetch(baseURL + '/subsidiary/OffersFromSubsidiary/'+ this.state.subsidiaryid, {
       method: 'GET',
       headers: {
         'content-type': 'application/json',
@@ -201,7 +219,7 @@ class Shop extends Component {
       message = 'Eliminado de favoritos';
     }
 
-    fetch(this.state.baseUrl + 'user/'+ route, {
+    fetch(baseURL + '/user/'+ route, {
       method: method,
       headers: {
         'content-type': 'application/json',
@@ -209,7 +227,7 @@ class Shop extends Component {
       },
       body: JSON.stringify({
         subsidiaryid: this.state.subsidiaryid,
-        userid: this.state.userid
+        userid: this.state.user.id
       })
     })
     .then((response) => response.json())
@@ -258,16 +276,21 @@ class Shop extends Component {
     return (
       <ScreenContainer style={styles.c}>
         <ContainerRow style={[styles.c, styles.fullHeight]}>
-          <ImageBackground style={styles.cover} source={{uri: this.state.baseUrl +"subsidiary/image/"+this.state.subsidiary.image}} />
 
           <View style={styles.prevBtn}>
-            <IconButton
-              color="#9c9c9c"
-              name="arrowleft"
-              onClickEvent={() => this.props.navigation.goBack()}
-            />
+            <TouchableWithoutFeedback 
+              onPress={() => this.props.navigation.goBack()}
+            >
+              <Icon
+                name="arrowleft"
+                backgroundColor="transparent"
+                size={20}
+                color={"#FFF"} />
+            </TouchableWithoutFeedback>
           </View>
 
+          <ImageBackground style={styles.cover} source={{uri: baseURL +"/subsidiary/image/"+this.state.subsidiary.image}} />
+          <View style={styles.layout}/>
 
           <Animated.View  style={[styles.swipe,transformStyle]}>
             <GestureRecognizer
@@ -300,9 +323,13 @@ class Shop extends Component {
             <View style={styles.body}>
 
               {this.state.subsidiaries.length > 0 &&
-                <Text style={styles.subsidiariesText}>
-                  Otras sucursales
-                </Text>
+                <View style={styles.subsidiaries}>
+                  <Text style={styles.subsidiariesText}>
+                    Otras sucursales
+                  </Text>
+
+                  <SubsidiariesList subsidiaries={this.state.subsidiaries}/>
+                </View>
               }
 
               {(this.state.offers.length)
@@ -315,7 +342,9 @@ class Shop extends Component {
                   </ScrollOffers>
                 </View>
 
-              : <Text>Actualmente no existen ofertas vigentes</Text>
+              : <Text style={styles.empty}>
+                  Actualmente no existen ofertas vigentes
+                </Text>
               }
             </View>
 
@@ -332,12 +361,10 @@ const styles = StyleSheet.create({
   c: {
     padding: 0
   },
-  prevBtn: {
-    zIndex: 2,
-    position: 'relative'
-  },
   fullHeight: {
     height: '100%',
+    width: '100%',
+    position: 'relative',
     flex: 1,
   },
   swipe:{
@@ -358,6 +385,23 @@ const styles = StyleSheet.create({
     left: 0,
     height: 280,
     zIndex: 1
+  },
+  layout: {
+    width: '100%',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    height: 280,
+    zIndex: 2,
+    backgroundColor: "rgba(0,0,0,.15)"
+  },
+  prevBtn: {
+    zIndex: 3,
+    position: 'absolute',
+    width: 30,
+    height: 30,
+    left: 15,
+    top: 15,
   },
   head: {
     position: 'relative',
@@ -406,6 +450,13 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     paddingBottom: 20,
     paddingRight: 5
+  },
+  subsidiaries:{
+    marginBottom: 20
+  },
+  empty:{
+    textAlign: 'center',
+    marginTop: 60
   }
 });
 

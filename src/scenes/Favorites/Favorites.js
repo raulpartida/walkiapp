@@ -16,7 +16,6 @@ import SubTitleSection from '../../components/SubTitleSection';
 import ContainerRow from '../../components/ContainerRow';
 import Text from '../../components/Text';
 
-
 class Favorites extends Component {
   constructor(props) {
     super(props);
@@ -99,6 +98,7 @@ class Favorites extends Component {
   render() {
     return (
       <ScreenContainer style={styles.c}>
+
         <ContainerRow style={styles.c}>
           <IconButton
             name="arrowleft"
