@@ -126,9 +126,8 @@ class Shop extends Component {
         if (index !== -1) {
           response.docs.splice(index, 1);
           this.setState({subsidiaries: response.docs});
-          }
-
         }
+      }
     })
     .catch((error) => {
       console.error(error);
