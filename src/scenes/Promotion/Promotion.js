@@ -3,7 +3,8 @@ import {baseURL} from '../../Constants';
 import AsyncStorage from '@react-native-community/async-storage';
 import moment from "moment";
 
-import {View, StyleSheet, Text, ScrollView, Image} from 'react-native';
+import {View, StyleSheet, Text, ScrollView, Image, Dimensions} from 'react-native';
+import Barcode from "react-native-barcode-builder";
 import ScreenContainer from '../../components/ScreenContainer';
 import SubTitleSection from '../../components/SubTitleSection';
 import ActionButton from '../../components/ActionButton';
@@ -23,6 +24,7 @@ import {
   greenLigth,
   greenDark,
 } from '../../assets/colors';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
 class Promotion extends Component {
   constructor(props) {
@@ -33,7 +35,8 @@ class Promotion extends Component {
       offerid: this.props.route.params.offerid,
       token: null,
       user: null,
-      depqartment: null
+      department: null,
+      modalOpened: false
     };
   }
 
@@ -146,10 +149,32 @@ class Promotion extends Component {
               <ActionButton
                 title="Redimir"
                 style={styles.btn}
-                onClickEvent={() => this.handle()}
+                onClickEvent={() => this.setState({modalOpened: true})}
               />
             </View>
           }
+
+          {this.state.modalOpened == true &&
+          <View 
+            style={styles.overlay}
+          >
+            <TouchableWithoutFeedback 
+              onPress={() => this.setState({modalOpened: false})}
+              style={styles.fullHeight}
+            >
+              <View style={styles.modal}>
+                  <Barcode 
+                    width={1}
+                    value={this.state.offer.sku} 
+                    format="CODE128" 
+                  />
+                  <Text style={styles.modalText}>
+                    Muestra este código en caja.
+                  </Text>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        }
       </ScreenContainer>
     );
   }
@@ -236,4 +261,35 @@ const styles = StyleSheet.create({
     marginTop: 30,
     backgroundColor: greenDark
   },
+  overlay:{
+    zIndex: 100,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,.75)",
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  fullHeight:{
+    height: '100%',
+    width: Dimensions.get('window').width,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  modal: {
+    width: '90%',
+    height: 200,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  modalText: {
+    color: greenDark,
+    fontWeight: 'bold'
+  }
 });
