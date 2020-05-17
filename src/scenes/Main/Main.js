@@ -5,6 +5,7 @@ import {
   View,
   ScrollView,
   PermissionsAndroid,
+  NativeEventEmitter,
 } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
 import Text from '../../components/Text';
@@ -18,6 +19,7 @@ import ScrollNews from './components/ScrollNews';
 import {white, green} from '../../assets/colors';
 import {baseURL} from '../../Constants';
 import AsyncStorage from '@react-native-community/async-storage';
+import BeaconManager from '../../services/BeaconManger';
 
 class Main extends Component {
   constructor(props) {
@@ -33,7 +35,22 @@ class Main extends Component {
 
   componentDidMount() {
     this._getStoreInfo();
+    this._requestPositionPermission();
+    const eventEmitter = new NativeEventEmitter(BeaconManager);
+    this.eventListener = eventEmitter.addListener(
+      'beaconService',
+      this._eventHandler.bind(this),
+    );
   }
+
+  componentWillUnmount() {
+    this.eventListener.remove(); //Removes the listener
+  }
+
+  _eventHandler = event => {
+    console.log(event.hasOwnProperty('message') ? event.message : null);
+    console.log(event.hasOwnProperty('event') ? event.value : null);
+  };
 
   _getStoreInfo = async () => {
     try {
@@ -137,6 +154,25 @@ class Main extends Component {
     }
   };
 
+  _requestPositionPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {},
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('Location granted');
+        BeaconManager.beaconInitialize(msg => {
+          console.log(msg);
+        });
+      } else {
+        console.log('Location denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
   render() {
     const categories = [
       {category: 'Plaza', url: '/mall'},
@@ -176,7 +212,7 @@ class Main extends Component {
             token={token}
           />
           <Text value="Novedades" style={styles.textLabel} />
-          <ScrollNews
+          {/*<ScrollNews
             navigation={this.props.navigation}
             token={token}
             offers={
@@ -184,7 +220,7 @@ class Main extends Component {
                 ? this.state.offers.slice(0, 5)
                 : this.state.offers
             }
-          />
+          />*/}
         </ScrollView>
       </ScreenContainer>
     );

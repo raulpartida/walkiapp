@@ -92,7 +92,6 @@ const App: () => React$Node = () => {
 
   const [state, dispatch] = React.useReducer(
     (prevState, action) => {
-      console.log(action);
       switch (action.type) {
         case 'RESTORE_TOKEN':
           return {
