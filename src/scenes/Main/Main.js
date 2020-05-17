@@ -6,6 +6,7 @@ import {
   ScrollView,
   PermissionsAndroid,
   NativeEventEmitter,
+  DeviceEventEmitter,
 } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
 import Text from '../../components/Text';
@@ -34,13 +35,17 @@ class Main extends Component {
   }
 
   componentDidMount() {
-    this._getStoreInfo();
-    this._requestPositionPermission();
-    const eventEmitter = new NativeEventEmitter(BeaconManager);
-    this.eventListener = eventEmitter.addListener(
-      'beaconService',
-      this._eventHandler.bind(this),
-    );
+    try {
+      this._getStoreInfo();
+      this._requestPositionPermission();
+      const eventEmitter = new NativeEventEmitter(BeaconManager);
+      this.eventListener = eventEmitter.addListener(
+        'beaconService',
+        this._eventHandler.bind(this),
+      );
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   componentWillUnmount() {
@@ -162,9 +167,6 @@ class Main extends Component {
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         console.log('Location granted');
-        BeaconManager.beaconInitialize(msg => {
-          console.log(msg);
-        });
       } else {
         console.log('Location denied');
       }
