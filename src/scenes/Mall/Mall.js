@@ -72,6 +72,7 @@ class Mall extends Component {
   getData(){
     fetch(baseURL + '/mall/'+ this.state.mallid, {
       method: 'GET',
+      timeout: 5000, 
       headers: {
         'content-type': 'application/json',
         'Authorization': this.state.token
@@ -89,6 +90,7 @@ class Mall extends Component {
   getFavorites(){
     fetch(baseURL + '/user/getFavorite/'+ this.state.user.id, {
       method: 'GET',
+      timeout: 5000,
       async: true,
       headers: {
         'content-type': 'application/json',
@@ -109,6 +111,7 @@ class Mall extends Component {
   getSubsidiaries(){
     fetch(baseURL + '/subsidiary/', {
       method: 'GET',
+      timeout: 5000,
       headers: {
         'content-type': 'application/json',
         'Authorization': this.state.token
@@ -171,6 +174,7 @@ class Mall extends Component {
 
     fetch(baseURL + '/user/'+ route, {
       method: method,
+      timeout: 5000,
       headers: {
         'content-type': 'application/json',
         'Authorization': this.state.token

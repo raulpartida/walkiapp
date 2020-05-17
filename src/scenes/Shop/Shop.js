@@ -66,6 +66,7 @@ class Shop extends Component {
   getData(){
     fetch(baseURL + '/subsidiary/'+ this.state.subsidiaryid, {
       method: 'GET',
+      timeout: 5000,
       headers: {
         'content-type': 'application/json',
         'Authorization': this.state.token
@@ -88,6 +89,7 @@ class Shop extends Component {
 
     fetch(baseURL + '/user/getFavorite/'+ this.state.user.id, {
       method: 'GET',
+      timeout: 5000,
       async: true,
       headers: {
         'content-type': 'application/json',
@@ -111,6 +113,7 @@ class Shop extends Component {
   getSubsidiaries(){
     fetch(baseURL + '/subsidiary/bySeller/'+ this.state.subsidiary.userid, {
       method: 'GET',
+      timeout: 5000,
       headers: {
         'content-type': 'application/json',
         'Authorization': this.state.token
@@ -137,6 +140,7 @@ class Shop extends Component {
   getMall(){
     fetch(baseURL + '/mall/'+ this.state.subsidiary.mallid, {
       method: 'GET',
+      timeout: 5000,
       headers: {
         'content-type': 'application/json',
         'Authorization': this.state.token
@@ -154,6 +158,7 @@ class Shop extends Component {
   getDepartments(){
     fetch(baseURL + '/department/', {
       method: 'GET',
+      timeout: 5000,
       headers: {
         'content-type': 'application/json',
         'Authorization': this.state.token
@@ -161,7 +166,7 @@ class Shop extends Component {
     })
     .then((response) => response.json())
     .then((response) => {
-        if(response.total_rows){
+      if(response.total_rows){
           this.setState({departments: response.rows});
           this.getOffers();
         }
@@ -174,6 +179,7 @@ class Shop extends Component {
   getOffers(){
     fetch(baseURL + '/subsidiary/OffersFromSubsidiary/'+ this.state.subsidiaryid, {
       method: 'GET',
+      timeout: 5000,
       headers: {
         'content-type': 'application/json',
         'Authorization': this.state.token
@@ -202,6 +208,7 @@ class Shop extends Component {
         }
     })
     .catch((error) => {
+      alert(JSON.stringify(error))
       console.error(error);
     });
   }
@@ -240,6 +247,7 @@ class Shop extends Component {
 
     fetch(baseURL + '/user/'+ route, {
       method: method,
+      timeout: 5000,
       headers: {
         'content-type': 'application/json',
         'Authorization': this.state.token
