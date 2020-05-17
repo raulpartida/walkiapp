@@ -23,6 +23,7 @@ import SubTitleSection from '../../components/SubTitleSection';
 import ContainerRow from '../../components/ContainerRow';
 import ScrollOffers from './components/ScrollOffers';
 import SubsidiariesList from './components/SubsidiariesList';
+import { greenDark } from '../../assets/colors';
 
 class Shop extends Component {
   constructor(props) {
@@ -30,6 +31,7 @@ class Shop extends Component {
     this.state = {
       swiped: false,
       favorite: false,
+      mall: null,
       subsidiary: [],
       subsidiaries: [],
       departments: [],
@@ -74,6 +76,7 @@ class Shop extends Component {
         // Save token
         this.setState({subsidiary: response});
         this.getSubsidiaries();
+        this.getMall();
     })
     .catch((error) => {
       console.error(error);
@@ -126,6 +129,23 @@ class Shop extends Component {
           }
 
         }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
+
+  getMall(){
+    fetch(baseURL + '/mall/'+ this.state.subsidiary.mallid, {
+      method: 'GET',
+      headers: {
+        'content-type': 'application/json',
+        'Authorization': this.state.token
+      }
+    })
+    .then((response) => response.json())
+    .then((response) => {
+      this.setState({mall: response.name})
     })
     .catch((error) => {
       console.error(error);
@@ -318,6 +338,16 @@ class Shop extends Component {
               <Text style={styles.name}>
                 {this.state.subsidiary.name}
               </Text>
+
+              <TouchableWithoutFeedback 
+                onPress={() => {this.props.navigation.navigate('Mall', {mallid: this.state.subsidiary.mallid })}}>
+                <View style={styles.mall}>
+                  <Icon color={greenDark} name="tagso" size={23}/>
+                  <Text style={styles.mallName}>
+                    {this.state.mall}
+                  </Text>
+                </View>
+              </TouchableWithoutFeedback>
             </GestureRecognizer>
             
             <View style={styles.body}>
@@ -414,6 +444,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  mall:{
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  mallName:{
+    marginLeft: 5,
+    color: greenDark
   },
   flex1:{
     width: '33%'
