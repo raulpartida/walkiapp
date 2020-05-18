@@ -20,6 +20,7 @@ export default props => {
       data={props.subsidiaries}
       horizontal={true}
       showsHorizontalScrollIndicator={false}
+      keyExtractor={(item, index) => index.toString()}
       renderItem={({item, index}) => {
         return (
           <TouchableWithoutFeedback 
