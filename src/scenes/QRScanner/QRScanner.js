@@ -27,7 +27,9 @@ class QRScanner extends Component {
   }
 
   barcodeRecognized = ({ barcodes }) => {
-    barcodes.forEach(barcode => console.warn(barcode.data))
+    barcodes.forEach(barcode => {
+      this.props.navigation.navigate('Shop', {subsidiaryid: barcode.data})
+    })
   };
 
   handle = () => {};
