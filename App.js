@@ -13,6 +13,7 @@ import Main from './src/scenes/Main/Main';
 import Shop from './src/scenes/Shop/Shop';
 import SignUp from './src/scenes/SignUp/SignUp';
 import Promotion from './src/scenes/Promotion/Promotion';
+import Mall from './src/scenes/Mall/Mall';
 import Help from './src/scenes/Help/Help';
 import EditProfile from './src/scenes/EditProfile/EditProfile';
 import Join from './src/scenes/JoinToWalki/JoinToWalki';
@@ -46,7 +47,7 @@ const TabStackScreen = () => (
           iconName = focused ? 'home' : 'home';
         } else if (route.name === 'QR Code') {
           iconName = focused ? 'qrcode' : 'qrcode';
-        } else if (route.name === 'Favoritos') {
+        } else if (route.name === 'Favorites') {
           iconName = focused ? 'star' : 'staro';
         }
 
@@ -168,6 +169,7 @@ const App: () => React$Node = () => {
             <HomeStack.Screen name="Menu" component={Menu} />
             <HomeStack.Screen name="Shop" component={Shop} />
             <HomeStack.Screen name="Promotion" component={Promotion} />
+            <HomeStack.Screen name="Mall" component={Mall} />
             <HomeStack.Screen name="Help" component={Help} />
             <HomeStack.Screen name="Join" component={Join} />
             <HomeStack.Screen name="Profile" component={Profile} />

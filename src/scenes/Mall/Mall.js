@@ -1,44 +1,51 @@
 import React, {Component} from 'react';
 import {
-  StyleSheet, 
-  ImageBackground, 
   View, 
+  StyleSheet, 
   Text, 
-  ScrollView, 
-  Animated, 
+  ImageBackground,
+  Animated,
   TouchableWithoutFeedback,
-  Alert
+  FlatList
 } from 'react-native';
+
 import {baseURL} from '../../Constants';
 import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-simple-toast';
 import GestureRecognizer, {swipeDirections} from 'react-native-swipe-gestures';
-import moment from "moment";
 
 import ScreenContainer from '../../components/ScreenContainer';
-import Icon from 'react-native-vector-icons/AntDesign';
-import ImageButton from '../../components/ImageButton';
-import IconButton from '../../components/IconButton';
 import SubTitleSection from '../../components/SubTitleSection';
+import ActionButton from '../../components/ActionButton';
+import IconButton from '../../components/IconButton';
 import ContainerRow from '../../components/ContainerRow';
-import ScrollOffers from './components/ScrollOffers';
-import SubsidiariesList from './components/SubsidiariesList';
-import { greenDark } from '../../assets/colors';
+import NeutralButton from '../../components/NeutralButton';
+import photo from '../../assets/images/profile.jpg';
+import Icon from 'react-native-vector-icons/AntDesign';
 
-class Shop extends Component {
+import {
+  grayText,
+  grayLigth,
+  grayLabel,
+  white,
+  red,
+  yellow,
+  green,
+  greenLigth,
+  greenDark,
+} from '../../assets/colors';
+
+class Mall extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      swiped: false,
-      favorite: false,
-      mall: null,
-      subsidiary: [],
+      token: null,
+      mall: [],
       subsidiaries: [],
-      departments: [],
-      offers: [],
+      favorites: [],
+      mallid: this.props.route.params.mallid,
+      swiped: false,
       animationValue : new Animated.Value(250),
-      subsidiaryid: this.props.route.params.subsidiaryid,
-      token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjUwMjZjZjJjNGY5NzkyNTAwZWNlZWFlYzBhMWQ3NzNjIiwicmV2IjoiMy02ODMxZGI2MjgxOTE5YjViOWNkNTc2MmI5ODZiOTE5NiIsIm5hbWUiOiJTZXJnaW8iLCJlbWFpbCI6ImNoZWNvcm9ibGVzQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNTg5MDg1OTY0fQ.4ttttHOPGreqoHDa0L5fr9Q8dNpVW3oWE5iYnLmhnYU'
     };
   }
 
@@ -56,7 +63,6 @@ class Shop extends Component {
         this.setState({token: tokenResponse});
         this.getData();
         this.getFavorites();
-        this.getDepartments();
       }
     } catch (error) {
       console.error('Exception:', error);
@@ -64,9 +70,9 @@ class Shop extends Component {
   }
 
   getData(){
-    fetch(baseURL + '/subsidiary/'+ this.state.subsidiaryid, {
+    fetch(baseURL + '/mall/'+ this.state.mallid, {
       method: 'GET',
-      timeout: 5000,
+      timeout: 5000, 
       headers: {
         'content-type': 'application/json',
         'Authorization': this.state.token
@@ -74,10 +80,7 @@ class Shop extends Component {
     })
     .then((response) => response.json())
     .then((response) => {
-        // Save token
-        this.setState({subsidiary: response});
-        this.getSubsidiaries();
-        this.getMall();
+      this.setState({mall: response});
     })
     .catch((error) => {
       console.error(error);
@@ -85,8 +88,6 @@ class Shop extends Component {
   }
 
   getFavorites(){
-    let favorites = [];
-
     fetch(baseURL + '/user/getFavorite/'+ this.state.user.id, {
       method: 'GET',
       timeout: 5000,
@@ -99,11 +100,8 @@ class Shop extends Component {
     .then((response) => response.json())
     .then((response) => {
         if(!response.message){
-          favorites = response.arreglo_jsons_favorites;
-
-          if(favorites.find(item => item._id == this.state.subsidiaryid)){
-            this.setState({favorite: true});
-          }
+          this.setState({favorites: response.arreglo_jsons_favorites});
+          this.getSubsidiaries();
         }
     })
     .catch((error) => {
@@ -111,7 +109,7 @@ class Shop extends Component {
   }
 
   getSubsidiaries(){
-    fetch(baseURL + '/subsidiary/bySeller/'+ this.state.subsidiary.userid, {
+    fetch(baseURL + '/subsidiary/', {
       method: 'GET',
       timeout: 5000,
       headers: {
@@ -121,98 +119,27 @@ class Shop extends Component {
     })
     .then((response) => response.json())
     .then((response) => {
+      let subsidiaries = response.rows;
+      const favorites = this.state.favorites;
 
-      if(response.docs && response.docs.length){
-        let index = response.docs.findIndex(item => item._id == this.state.subsidiaryid)
-        
+      subsidiaries = subsidiaries.filter(item => item.doc.mallid == this.state.mallid);
+
+      for (let subsidiary of subsidiaries) {
+        let index = favorites.findIndex(item => item._id == subsidiary.id)
         
         if (index !== -1) {
-          response.docs.splice(index, 1);
-          this.setState({subsidiaries: response.docs});
+          subsidiary.doc.favorite = true;
+        }else{
+          subsidiary.doc.favorite = false;
         }
       }
+
+      this.setState({subsidiaries: subsidiaries});
     })
     .catch((error) => {
       console.error(error);
     });
   }
-
-  getMall(){
-    fetch(baseURL + '/mall/'+ this.state.subsidiary.mallid, {
-      method: 'GET',
-      timeout: 5000,
-      headers: {
-        'content-type': 'application/json',
-        'Authorization': this.state.token
-      }
-    })
-    .then((response) => response.json())
-    .then((response) => {
-      this.setState({mall: response.name})
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-  }
-
-  getDepartments(){
-    fetch(baseURL + '/department/', {
-      method: 'GET',
-      timeout: 5000,
-      headers: {
-        'content-type': 'application/json',
-        'Authorization': this.state.token
-      }
-    })
-    .then((response) => response.json())
-    .then((response) => {
-      if(response.total_rows){
-          this.setState({departments: response.rows});
-          this.getOffers();
-        }
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-  }
-
-  getOffers(){
-    fetch(baseURL + '/subsidiary/OffersFromSubsidiary/'+ this.state.subsidiaryid, {
-      method: 'GET',
-      timeout: 5000,
-      headers: {
-        'content-type': 'application/json',
-        'Authorization': this.state.token
-      }
-    })
-    .then((response) => response.json())
-    .then((response) => {
-        if(response.message){
-          const now = moment();
-
-          let offers = response.message.filter(function(item){
-            if (now.diff(moment(item.finishDate)) <= 0) {
-              return item;
-            }
-          })
-
-          offers.map((offer) => {
-            let currentDepartment = this.state.departments.find(department => department.id == offer.departmentid);
-
-            if (currentDepartment) {
-              offer['department'] = currentDepartment.doc.name;
-            }
-          });
-
-          this.setState({offers: offers})
-        }
-    })
-    .catch((error) => {
-      alert(JSON.stringify(error))
-      console.error(error);
-    });
-  }
-
 
   toggleAnimation=(direction)=>{
     
@@ -234,12 +161,12 @@ class Shop extends Component {
     }
   }
 
-  toggleFavorite = () => {
+  toggleFavorite = (id, state) => {
     let route = 'addFavorite';
     let method = 'PUT';
     let message = 'Añadido a favoritos';
 
-    if(this.state.favorite){
+    if(state){
       route = 'deleteFavorite';
       method = 'DELETE';
       message = 'Eliminado de favoritos';
@@ -253,16 +180,22 @@ class Shop extends Component {
         'Authorization': this.state.token
       },
       body: JSON.stringify({
-        subsidiaryid: this.state.subsidiaryid,
+        subsidiaryid: id,
         userid: this.state.user.id
       })
     })
     .then((response) => response.json())
     .then((response) => {
+        let subsidiaries = this.state.subsidiaries;
         // Save token
         if(response.ok){
-          Toast.show(message, Toast.LONG);
-          this.setState({favorite: !this.state.favorite})
+          let index = subsidiaries.findIndex(item => item.id == id)
+        
+          if (index !== -1) {
+            subsidiaries[index].doc.favorite = !subsidiaries[index].doc.favorite;
+            this.setState({subsidiaries: subsidiaries});
+            Toast.show(message, Toast.LONG);
+          }
         }
     })
     .catch((error) => {
@@ -286,7 +219,10 @@ class Shop extends Component {
     }
   }
 
-  handle = () => {};
+  goSubsidiary = (id) =>{
+    // alert(id)
+    this.props.navigation.push('Shop', {subsidiaryid: id });
+  }
 
   render() {
     const transformStyle ={
@@ -301,7 +237,7 @@ class Shop extends Component {
     };
 
     return (
-      <ScreenContainer style={styles.c}>
+      <ScreenContainer style={{padding: 0, backgroundColor: white}}>
         <ContainerRow style={[styles.c, styles.fullHeight]}>
 
           <View style={styles.prevBtn}>
@@ -316,7 +252,7 @@ class Shop extends Component {
             </TouchableWithoutFeedback>
           </View>
 
-          <ImageBackground style={styles.cover} source={{uri: baseURL +"/subsidiary/image/"+this.state.subsidiary.image}} />
+          <ImageBackground style={styles.cover} source={{uri: baseURL +"/mall/image/"+this.state.mall.image}} />
           <View style={styles.layout}/>
 
           <Animated.View  style={[styles.swipe,transformStyle]}>
@@ -328,61 +264,85 @@ class Shop extends Component {
                 
               <TouchableWithoutFeedback onPress={()=> this.toggleSwipe()}>
                 <View style={styles.head__elements}>
-                  <View style={styles.flex1}/>
                   <View style={[styles.flex1, styles.center]}>
                     <View style={styles.line}/>
-                  </View>
-                  <View style={[styles.end, styles.flex1]}>
-                    <IconButton
-                      color="#4c4c4c"
-                      name={(!this.state.favorite)?'like2':'like1'}
-                      onClickEvent={() => this.toggleFavorite()}
-                    />
                   </View>
                 </View>
               </TouchableWithoutFeedback>
 
               <Text style={styles.name}>
-                {this.state.subsidiary.name}
+                {this.state.mall.name}
               </Text>
 
-              <TouchableWithoutFeedback 
-                onPress={() => {this.props.navigation.navigate('Mall', {mallid: this.state.subsidiary.mallid })}}>
-                <View style={styles.mall}>
-                  <Icon color={greenDark} name="tagso" size={23}/>
-                  <Text style={styles.mallName}>
-                    {this.state.mall}
+              <View style={styles.row}>
+                <View style={styles.half}>
+                  <Text style={styles.subtitle}>
+                    Estado:
+                  </Text>
+                  <Text style={styles.infoText}>
+                    {this.state.mall.state}
                   </Text>
                 </View>
-              </TouchableWithoutFeedback>
-            </GestureRecognizer>
-            
-            <View style={styles.body}>
 
-              {this.state.subsidiaries.length > 0 &&
-                <View style={styles.subsidiaries}>
-                  <Text style={styles.subsidiariesText}>
-                    Otras sucursales
+                <View style={styles.half}>
+                  <Text style={styles.subtitle}>
+                    Municipio:
                   </Text>
-
-                  <SubsidiariesList subsidiaries={this.state.subsidiaries}/>
+                  <Text style={styles.infoText}>
+                    {this.state.mall.city}
+                  </Text>
                 </View>
-              }
-
-              {(this.state.offers.length)
-              ? 
+              </View>
+              <View style={styles.row}>
                 <View>
-                  <Text style={styles.subsidiariesText}>
-                    Ofertas vigentes
+                  <Text style={styles.subtitle}>
+                    Dirección:
                   </Text>
-                  <ScrollOffers offers={this.state.offers}>
-                  </ScrollOffers>
+                  <Text style={styles.infoText}>
+                    {this.state.mall.address}
+                  </Text>
                 </View>
+              </View>
+            </GestureRecognizer>
 
-              : <Text style={styles.empty}>
-                  Actualmente no existen ofertas vigentes
-                </Text>
-              }
+            <View style={styles.body}>
+              <Text style={styles.subsidiariesText}>
+                    {"Sucursales en " + this.state.mall.name}
+              </Text>
+
+              <FlatList
+                style={styles.grid}
+                data={this.state.subsidiaries}
+                showsVerticalScrollIndicator={false}
+                numColumns={2}
+                renderItem={({item, index}) => {
+                  return (
+                    <TouchableWithoutFeedback onPress={(id) => {this.goSubsidiary(item.id)}}>
+                      <View style={styles.item}>
+                        <ImageBackground 
+                          style={styles.image} 
+                          source={{uri: baseURL + "/subsidiary/image/" + item.doc.image}} 
+                        />
+                        <View style={styles.layer}></View>
+                        <View>
+                          <Text style={styles.nameSubsidiary}>
+                            {item.doc.name}
+                          </Text>
+                        </View>
+
+                        <View style={styles.btn}>
+                          <IconButton
+                            name={(item.doc.favorite)?'like1':'like2'}
+                            color="#ffffff"
+                            onClickEvent={() => this.toggleFavorite(item.id, item.doc.favorite)}
+                          />
+                        </View>
+
+                      </View>
+                    </TouchableWithoutFeedback>
+                  );
+                }}>
+              </FlatList>
             </View>
 
           </Animated.View>
@@ -392,7 +352,7 @@ class Shop extends Component {
   }
 }
 
-export default Shop;
+export default Mall;
 
 const styles = StyleSheet.create({
   c: {
@@ -450,35 +410,15 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center'
-  },
-  mall:{
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  mallName:{
-    marginLeft: 5,
-    color: greenDark
-  },
-  flex1:{
-    width: '33%'
+    justifyContent: 'center',
+    paddingTop: 15,
+    paddingBottom: 15,
   },
   line:{
     width: 60,
     borderRadius: 5,
     borderWidth: 4,
     borderColor: "#CfCfCf"
-  },
-  center: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center'
-  },
-  end:{
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'flex-end'
   },
   name: {
     display: 'flex',
@@ -487,22 +427,77 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#444"
   },
+  row: {
+    display: 'flex',
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingLeft: 30,
+    paddingRight: 30,
+    marginTop: 20
+  },
+  half:{
+    width: '40%'
+  },
+  subtitle: {
+    color: greenDark,
+    fontSize: 16,
+    fontWeight: 'bold'
+  },
+  infoText: {
+    color: "#666",
+    fontSize: 15
+  },
+  grid:{
+    width: '100%',
+    display: 'flex'
+  },
+  item: {
+    width: '48%',
+    margin: '1.3%',
+    height: 200,
+    overflow: 'hidden',
+    borderRadius: 10,
+    position: 'relative'
+  },
+  itemBigger: {
+    height: 200
+  },
+  image: {
+    height: '100%',
+    overflow: 'hidden',
+    resizeMode: 'cover',
+    justifyContent: 'center',
+    flex: 1
+  },
+  nameSubsidiary: {
+    position: 'absolute',
+    bottom: 10,
+    left: 5,
+    fontWeight: 'bold',
+    color: 'white',
+    zIndex: 2,
+  },
+  layer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0,0,0,.3)'
+  },
   subsidiariesText:{
     color: '#555',
-    fontSize: 18
+    fontSize: 18,
+    paddingTop: 30,
+    marginLeft: 10,
+    marginBottom: 10
   },
-  body:{
-    paddingTop: 20,
-    paddingLeft: 20,
-    paddingBottom: 20,
-    paddingRight: 5
-  },
-  subsidiaries:{
-    marginBottom: 20
-  },
-  empty:{
-    textAlign: 'center',
-    marginTop: 60
+  btn:{
+    position: 'absolute',
+    top: 10,
+    right: 0,
+    zIndex: 1
   }
 });
-
