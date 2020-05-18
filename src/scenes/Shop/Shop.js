@@ -73,14 +73,18 @@ class Shop extends Component {
     })
     .then((response) => response.json())
     .then((response) => {
-        // Save token
-        let _this = this;
-        this.setState({subsidiary: response});
-
-        setTimeout(function(){
-          _this.getSubsidiaries();
-          _this.getMall();
-        }, 1000);
+        if(response.message && response.message == "Subsidiary wasn't found"){
+          Toast.show("La sucursal no fue encontrada", Toast.LONG);
+          this.props.navigation.navigate("Home");
+        }else{
+          let _this = this;
+          this.setState({subsidiary: response});
+  
+          setTimeout(function(){
+            _this.getSubsidiaries();
+            _this.getMall();
+          }, 1000);
+        }
     })
     .catch((error) => {
       console.error(error);
