@@ -60,7 +60,7 @@ const TabStackScreen = () => (
   </Tabs.Navigator>
 );
 
-async function _loginHandle(user = '', password = '') {
+async function _loginHandle(user = '', password = '', dispatch) {
   try {
     let hash = await fetch(baseURL + '/user/login', {
       method: 'POST',
@@ -74,13 +74,21 @@ async function _loginHandle(user = '', password = '') {
       }),
     })
       .then(response => {
-        return response.text();
+        var contentType = response.headers.get('content-type');
+        if (contentType !== 'application/json; charset=utf-8')
+          return response.text();
+        else return null;
       })
       .catch(error => {
         console.error('Error:', error);
       });
     try {
-      await AsyncStorage.setItem('token', hash);
+      if (hash != null) {
+        await AsyncStorage.setItem('token', hash);
+        dispatch({type: 'SIGN_IN', token: hash});
+      } else {
+        console.log('Error de acceso');
+      }
     } catch (error) {
       console.log(error.message);
     }
@@ -93,7 +101,6 @@ const App: () => React$Node = () => {
 
   const [state, dispatch] = React.useReducer(
     (prevState, action) => {
-      console.log(action);
       switch (action.type) {
         case 'RESTORE_TOKEN':
           return {
@@ -129,14 +136,14 @@ const App: () => React$Node = () => {
       signIn: (user, password) => {
         let userToken = null;
         if (user !== '' && password !== '')
-          userToken = _loginHandle(user, password);
-
-        dispatch({type: 'SIGN_IN', token: userToken});
+          userToken = _loginHandle(user, password, dispatch);
       },
       signOut: async () => {
         try {
           dispatch({type: 'SIGN_OUT'});
-          await AsyncStorage.removeItem('token');
+          await AsyncStorage.getAllKeys().then(keys =>
+            AsyncStorage.multiRemove(keys),
+          );
         } catch (error) {}
       },
     }),

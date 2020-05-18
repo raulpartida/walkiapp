@@ -176,7 +176,7 @@ class Main extends Component {
             token={token}
           />
           <Text value="Novedades" style={styles.textLabel} />
-          <ScrollNews
+          {/*<ScrollNews
             navigation={this.props.navigation}
             token={token}
             offers={
@@ -184,7 +184,7 @@ class Main extends Component {
                 ? this.state.offers.slice(0, 5)
                 : this.state.offers
             }
-          />
+          />*/}
         </ScrollView>
       </ScreenContainer>
     );
