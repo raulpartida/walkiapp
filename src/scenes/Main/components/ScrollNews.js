@@ -9,6 +9,7 @@ import {
 import Text from '../../../components/Text';
 import IconButton from '../../../components/IconButton';
 import {green, grayText, white, black} from '../../../assets/colors';
+import {baseURL} from '../../../Constants';
 
 export default props => {
   return (
@@ -33,7 +34,10 @@ export default props => {
               })
             }>
             <View style={styles.item}>
-              <ImageBackground style={styles.image} source={item.doc.image} />
+              <ImageBackground
+                style={styles.image}
+                source={{uri: baseURL + '/offer/image/' + item.doc.image}}
+              />
               <View style={styles.body}>
                 <Text
                   style={styles.title}

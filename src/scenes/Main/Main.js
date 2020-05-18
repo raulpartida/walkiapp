@@ -127,7 +127,7 @@ class Main extends Component {
             return {};
           });
 
-        this.setState({categoryStores: result.rows});
+        this.setState({categoryStores: result.rows, categorySelected: urlEnd});
       } else {
         this.setState({categoryStores: []});
       }
@@ -172,19 +172,22 @@ class Main extends Component {
           />
           <SliderShops
             shops={this.state.categoryStores}
+            url={this.state.categorySelected}
             navigation={this.props.navigation}
             token={token}
           />
           <Text value="Novedades" style={styles.textLabel} />
-          {/*<ScrollNews
+          <ScrollNews
             navigation={this.props.navigation}
             token={token}
-            offers={
-              this.state.offers.length > 5
-                ? this.state.offers.slice(0, 5)
-                : this.state.offers
-            }
-          />*/}
+            offers={() => {
+              try {
+                this.state.offers.length > 5
+                  ? this.state.offers.slice(0, 5)
+                  : this.state.offers;
+              } catch (error) {}
+            }}
+          />
         </ScrollView>
       </ScreenContainer>
     );
