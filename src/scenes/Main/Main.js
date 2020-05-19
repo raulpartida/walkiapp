@@ -5,6 +5,7 @@ import {
   View,
   ScrollView,
   PermissionsAndroid,
+  DeviceEventEmitter,
 } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
 import Text from '../../components/Text';
@@ -18,6 +19,7 @@ import ScrollNews from './components/ScrollNews';
 import {white, green} from '../../assets/colors';
 import {baseURL} from '../../Constants';
 import AsyncStorage from '@react-native-community/async-storage';
+import Beacons from 'react-native-beacons-android';
 
 class Main extends Component {
   constructor(props) {
@@ -32,6 +34,7 @@ class Main extends Component {
   }
 
   componentDidMount() {
+    this._requestPositionPermission();
     this._getStoreInfo();
   }
 
@@ -135,6 +138,40 @@ class Main extends Component {
       console.log(error);
       a;
     }
+  };
+
+  _requestPositionPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {},
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('Location granted');
+        this._beacons();
+      } else {
+        console.log('Location denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  _beacons = async () => {
+    Beacons.detectIBeacons();
+
+    // Start detecting all iBeacons in the nearby
+    try {
+      await Beacons.startRangingBeaconsInRegion('REGION1');
+      console.log(`Beacons ranging started succesfully!`);
+    } catch (err) {
+      console.log(`Beacons ranging not started, error: ${error}`);
+    }
+
+    // Print a log of the detected iBeacons (1 per second)
+    DeviceEventEmitter.addListener('beaconsDidRange', data => {
+      console.log('Found beacons!', data.beacons);
+    });
   };
 
   render() {

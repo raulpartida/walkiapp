@@ -19,6 +19,7 @@
     "react": "16.9.0",
     "react-native": "0.61.4",
     "react-native-barcode-builder": "^2.0.0",
+    "react-native-beacons-android": "^2.1.0",
     "react-native-elements": "^1.2.7",
     "react-native-gesture-handler": "^1.5.6",
     "react-native-reanimated": "^1.7.0",
