@@ -8,55 +8,50 @@ import {
   Text
 } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
+import {baseURL} from '../../../Constants';
+import { useNavigation } from '@react-navigation/native';
 
-class ScrollOffers extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      baseUrl: 'https://walki.us-south.cf.appdomain.cloud/api/',
-    }
-  }
-    render(){
-        return (
-            
-          <FlatList
-            style={styles.scroll}
-            data={this.props.offers}
-            showsVerticalScrollIndicator={false}
-            renderItem={({item, index}) => {
-              return (
-                <TouchableWithoutFeedback>
-                  <View style={styles.item}>
-                    <ImageBackground style={styles.image} source={{uri: this.state.baseUrl + "offer/image/"+ item.image}} />
-                    { item.type === "0" &&
-                      <View style={styles.specialOffer}>
-                        <Icon
-                          name="star"
-                          size={13}
-                          color="white" 
-                        />
-                      </View>
-                    }
-
-                    <View style={styles.body}>
-                      <Text style={styles.title}>
-                        {item.name}
-                      </Text>
-                      <Text style={styles.department}>
-                        {item.department}
-                      </Text>
-                    </View>
+export default props => {
+  const navigation = useNavigation();
+  
+    return (
+      <FlatList
+        style={styles.scroll}
+        data={props.offers}
+        showsVerticalScrollIndicator={false}
+        renderItem={({item, index}) => {
+          return (
+            <TouchableWithoutFeedback
+              onPress={() => {navigation.navigate('Promotion', {offerid: item._id })}}
+            >
+              <View style={styles.item}>
+                <ImageBackground style={styles.image} source={{uri: baseURL + "/offer/image/"+ item.image}} />
+                { item.type === "0" &&
+                  <View style={styles.specialOffer}>
+                    <Icon
+                      name="star"
+                      size={13}
+                      color="white" 
+                    />
                   </View>
-                </TouchableWithoutFeedback>
-              );
-            }}>
+                }
 
-            </FlatList>
-        );
-    }
+                <View style={styles.body}>
+                  <Text style={styles.title}>
+                    {item.name}
+                  </Text>
+                  <Text style={styles.department}>
+                    {item.department}
+                  </Text>
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
+          );
+        }}>
+
+        </FlatList>
+    );  
 };
-
-export default ScrollOffers;
 
 const styles = StyleSheet.create({
   scroll: {

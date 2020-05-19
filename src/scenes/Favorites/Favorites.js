@@ -114,6 +114,7 @@ class Favorites extends Component {
   render() {
     return (
       <ScreenContainer style={styles.c}>
+
         <ContainerRow style={styles.c}>
           <IconButton
             name="arrowleft"
