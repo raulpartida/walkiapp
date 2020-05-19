@@ -74,10 +74,18 @@ class Shop extends Component {
     })
     .then((response) => response.json())
     .then((response) => {
-        // Save token
-        this.setState({subsidiary: response});
-        this.getSubsidiaries();
-        this.getMall();
+        if(response.message && response.message == "Subsidiary wasn't found"){
+          Toast.show("La sucursal no fue encontrada", Toast.LONG);
+          this.props.navigation.navigate("Home");
+        }else{
+          let _this = this;
+          this.setState({subsidiary: response});
+  
+          setTimeout(function(){
+            _this.getSubsidiaries();
+            _this.getMall();
+          }, 1000);
+        }
     })
     .catch((error) => {
       console.error(error);
@@ -120,6 +128,9 @@ class Shop extends Component {
       }
     })
     .then((response) => response.json())
+    .catch((error) => {
+      console.error(error);
+    })
     .then((response) => {
 
       if(response.docs && response.docs.length){
@@ -132,9 +143,6 @@ class Shop extends Component {
         }
       }
     })
-    .catch((error) => {
-      console.error(error);
-    });
   }
 
   getMall(){
@@ -165,14 +173,18 @@ class Shop extends Component {
       }
     })
     .then((response) => response.json())
+    .catch((error) => {
+      console.error(error);
+    })
     .then((response) => {
       if(response.total_rows){
           this.setState({departments: response.rows});
-          this.getOffers();
+          let _this = this;
+
+          setTimeout(function(){
+            _this.getOffers();
+          }, 2300);
         }
-    })
-    .catch((error) => {
-      console.error(error);
     });
   }
 
@@ -186,6 +198,9 @@ class Shop extends Component {
       }
     })
     .then((response) => response.json())
+    .catch((error) => {
+      console.error(error);
+    })
     .then((response) => {
         if(response.message){
           const now = moment();
@@ -206,10 +221,6 @@ class Shop extends Component {
 
           this.setState({offers: offers})
         }
-    })
-    .catch((error) => {
-      alert(JSON.stringify(error))
-      console.error(error);
     });
   }
 
