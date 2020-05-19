@@ -124,10 +124,8 @@ const styles = StyleSheet.create({
   },
   btnSingUp: {
     backgroundColor: grayLigth,
-    color: white,
   },
   btnSignIn: {
     backgroundColor: greenDark,
-    color: white,
   },
 });
