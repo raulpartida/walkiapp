@@ -5,6 +5,7 @@ import {
   View,
   ScrollView,
   PermissionsAndroid,
+  Alert,
 } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
 import Text from '../../components/Text';
@@ -18,6 +19,7 @@ import ScrollNews from './components/ScrollNews';
 import {white, green} from '../../assets/colors';
 import {baseURL} from '../../Constants';
 import AsyncStorage from '@react-native-community/async-storage';
+import NotificationService from '../../services/NotificationService';
 
 class Main extends Component {
   constructor(props) {
@@ -28,7 +30,14 @@ class Main extends Component {
       offers: [],
       categorySelected: '',
       categoryStores: [],
+      registerDeviceKey: '',
+      fcmRegistered: false,
     };
+
+    this.notification = new NotificationService(
+      this.onRegister.bind(this),
+      this.onNotify.bind(this),
+    );
   }
 
   componentDidMount() {
@@ -137,6 +146,30 @@ class Main extends Component {
     }
   };
 
+  onRegister(token) {
+    this.setState({registerDeviceKey: token.token, fcmRegistered: true});
+  }
+
+  onNotify(notify) {
+    Alert.alert(notify.title, notify.message);
+  }
+
+  _requestLocationPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {},
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('Location granted');
+      } else {
+        console.log('Location denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
   render() {
     const categories = [
       {category: 'Plaza', url: '/mall'},
@@ -146,7 +179,7 @@ class Main extends Component {
       {category: 'Otros', url: '/subsidiary'},
     ];
     const {user, token} = this.state;
-
+    this._requestLocationPermission();
     return (
       <ScreenContainer style={styles.parentContainer}>
         <ScrollView showsVerticalScrollIndicator={false}>
