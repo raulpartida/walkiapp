@@ -18,6 +18,7 @@
     "moment": "^2.25.3",
     "react": "16.9.0",
     "react-native": "0.61.4",
+    "react-native-camera": "^3.24.2",
     "react-native-barcode-builder": "^2.0.0",
     "react-native-elements": "^1.2.7",
     "react-native-gesture-handler": "^1.5.6",
