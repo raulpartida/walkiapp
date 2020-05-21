@@ -13,6 +13,7 @@ import Main from './src/scenes/Main/Main';
 import Shop from './src/scenes/Shop/Shop';
 import SignUp from './src/scenes/SignUp/SignUp';
 import Promotion from './src/scenes/Promotion/Promotion';
+import Mall from './src/scenes/Mall/Mall';
 import Help from './src/scenes/Help/Help';
 import EditProfile from './src/scenes/EditProfile/EditProfile';
 import Join from './src/scenes/JoinToWalki/JoinToWalki';
@@ -20,7 +21,7 @@ import NewPass from './src/scenes/NewPassword/NewPassword';
 import Profile from './src/scenes/Profile/Profile';
 import SplashScreen from './src/scenes/SplashScreen/SplashScreen';
 import QRScanner from './src/scenes/QRScanner/QRScanner';
-import IconButton from './src/components/IconButton';
+import Icon from 'react-native-vector-icons/AntDesign';
 
 const HomeStack = createStackNavigator();
 const AuthStack = createStackNavigator();
@@ -50,7 +51,7 @@ const TabStackScreen = () => (
           iconName = focused ? 'star' : 'staro';
         }
 
-        return <IconButton name={iconName} size={size} color={color} />;
+        return <Icon name={iconName} size={size} color={color} />;
       },
     })}>
     <Tabs.Screen name="Home" component={Main} />
@@ -59,7 +60,7 @@ const TabStackScreen = () => (
   </Tabs.Navigator>
 );
 
-async function _loginHandle(user = '', password = '') {
+async function _loginHandle(user = '', password = '', dispatch) {
   try {
     let hash = await fetch(baseURL + '/user/login', {
       method: 'POST',
@@ -73,13 +74,21 @@ async function _loginHandle(user = '', password = '') {
       }),
     })
       .then(response => {
-        return response.text();
+        var contentType = response.headers.get('content-type');
+        if (contentType !== 'application/json; charset=utf-8')
+          return response.text();
+        else return null;
       })
       .catch(error => {
         console.error('Error:', error);
       });
     try {
-      await AsyncStorage.setItem('token', hash);
+      if (hash != null) {
+        await AsyncStorage.setItem('token', hash);
+        dispatch({type: 'SIGN_IN', token: hash});
+      } else {
+        console.log('Error de acceso');
+      }
     } catch (error) {
       console.log(error.message);
     }
@@ -92,7 +101,6 @@ const App: () => React$Node = () => {
 
   const [state, dispatch] = React.useReducer(
     (prevState, action) => {
-      console.log(action);
       switch (action.type) {
         case 'RESTORE_TOKEN':
           return {
@@ -128,14 +136,14 @@ const App: () => React$Node = () => {
       signIn: (user, password) => {
         let userToken = null;
         if (user !== '' && password !== '')
-          userToken = _loginHandle(user, password);
-
-        dispatch({type: 'SIGN_IN', token: userToken});
+          userToken = _loginHandle(user, password, dispatch);
       },
       signOut: async () => {
         try {
           dispatch({type: 'SIGN_OUT'});
-          await AsyncStorage.removeItem('token');
+          await AsyncStorage.getAllKeys().then(keys =>
+            AsyncStorage.multiRemove(keys),
+          );
         } catch (error) {}
       },
     }),
@@ -168,6 +176,7 @@ const App: () => React$Node = () => {
             <HomeStack.Screen name="Menu" component={Menu} />
             <HomeStack.Screen name="Shop" component={Shop} />
             <HomeStack.Screen name="Promotion" component={Promotion} />
+            <HomeStack.Screen name="Mall" component={Mall} />
             <HomeStack.Screen name="Help" component={Help} />
             <HomeStack.Screen name="Join" component={Join} />
             <HomeStack.Screen name="Profile" component={Profile} />

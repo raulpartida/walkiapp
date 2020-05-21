@@ -5,113 +5,222 @@ import {
   View,
   ScrollView,
   PermissionsAndroid,
+  Alert,
 } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
 import Text from '../../components/Text';
 import ContainerRow from '../../components/ContainerRow';
 import IconButton from '../../components/IconButton';
 import Logo from '../../assets/images/walki-logo-temp.jpeg';
-import img1 from '../../assets/images/img1.jpg';
-import img2 from '../../assets/images/img2.jpg';
-import img3 from '../../assets/images/img3.jpg';
-import img4 from '../../assets/images/img4.jpg';
 import {Image} from 'react-native-elements';
 import SliderOptions from './components/SliderOptions';
 import SliderShops from './components/SliderShops';
 import ScrollNews from './components/ScrollNews';
-import {white} from '../../assets/colors';
+import {white, green} from '../../assets/colors';
+import {baseURL} from '../../Constants';
+import AsyncStorage from '@react-native-community/async-storage';
+import NotificationService from '../../services/NotificationService';
 
 class Main extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      token: '',
+      user: {},
+      offers: [],
+      categorySelected: '',
+      categoryStores: [],
+      registerDeviceKey: '',
+      fcmRegistered: false,
+    };
+
+    this.notification = new NotificationService(
+      this.onRegister.bind(this),
+      this.onNotify.bind(this),
+    );
   }
 
-  componentDidMount() {}
+  componentDidMount() {
+    this._getStoreInfo();
+  }
 
-  handle = () => {};
+  _getStoreInfo = async () => {
+    try {
+      const tokenResponse = await AsyncStorage.getItem('token');
+      if (tokenResponse !== null && tokenResponse !== undefined)
+        this.setState({token: tokenResponse});
+
+      this._getUserInfo();
+      this._getOffersInfo();
+      this._getCategoriesInfo('/mall');
+    } catch (error) {
+      console.error('Exception:', error);
+    }
+  };
+
+  _getUserInfo = async () => {
+    try {
+      let headers = new Headers();
+      headers.append('Content-Type', 'application/json');
+      headers.append('Authorization', this.state.token);
+      headers.get('Content-Type');
+
+      let infoUser = await fetch(baseURL + '/user/getLoggedUser', {
+        method: 'GET',
+        headers: headers,
+      })
+        .then(response => {
+          return response.json();
+        })
+        .catch(error => {
+          console.error('Exception:', error);
+          return {};
+        });
+      this._refreshUserStoreData(infoUser);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  _refreshUserStoreData = async data => {
+    try {
+      await AsyncStorage.removeItem('user');
+      await AsyncStorage.setItem('user', JSON.stringify(data));
+      this.setState({user: data});
+    } catch (error) {}
+  };
+
+  _getOffersInfo = async () => {
+    try {
+      let headers = new Headers();
+      headers.append('Content-Type', 'application/json');
+      headers.append('Authorization', this.state.token);
+      headers.get('Content-Type');
+
+      let offersInfo = await fetch(baseURL + '/offer', {
+        method: 'GET',
+        headers: headers,
+      })
+        .then(response => {
+          return response.json();
+        })
+        .catch(error => {
+          console.error('Exception-Offer:', error);
+          return {};
+        });
+      this.setState({offers: offersInfo.rows});
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  _getCategoriesInfo = async (urlEnd = '') => {
+    try {
+      console.log('Calling' + urlEnd);
+
+      if (urlEnd !== '') {
+        let headers = new Headers();
+        headers.append('Content-Type', 'application/json');
+        headers.append('Authorization', this.state.token);
+        headers.get('Content-Type');
+
+        let result = await fetch(baseURL + urlEnd, {
+          method: 'GET',
+          headers: headers,
+        })
+          .then(response => {
+            return response.json();
+          })
+          .catch(error => {
+            console.error('Exception:', error);
+            return {};
+          });
+
+        this.setState({categoryStores: result.rows, categorySelected: urlEnd});
+      } else {
+        this.setState({categoryStores: []});
+      }
+    } catch (error) {
+      console.log(error);
+      a;
+    }
+  };
+
+  onRegister(token) {
+    this.setState({registerDeviceKey: token.token, fcmRegistered: true});
+  }
+
+  onNotify(notify) {
+    Alert.alert(notify.title, notify.message);
+  }
+
+  _requestLocationPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {},
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('Location granted');
+      } else {
+        console.log('Location denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
 
   render() {
-    const opt = ['Restaurante', 'Super', 'Departamental', 'Museo', 'Plaza'];
-
-    const shop = [
-      {image: img1, name: 'Tienda 1'},
-      {image: img2, name: 'Tienda 2'},
-      {image: img3, name: 'Tienda 3'},
-      {image: img4, name: 'Tienda 4'},
-      {image: img1, name: 'Tienda 5'},
-      {image: img2, name: 'Tienda 6'},
-      {image: img3, name: 'Tienda 7'},
-      {image: img4, name: 'Tienda 8'},
+    const categories = [
+      {category: 'Plaza', url: '/mall'},
+      {category: 'Restaurante', url: ''},
+      {category: 'Departamental', url: '/department'},
+      {category: 'Salud', url: ''},
+      {category: 'Otros', url: '/subsidiary'},
     ];
-    const news = [
-      {
-        image: img1,
-        title: 'Tienda 1',
-        description:
-          'There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...',
-      },
-      {
-        image: img2,
-        title: 'Tienda 2',
-        description:
-          'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...',
-      },
-      {
-        image: img3,
-        title: 'Tienda 3',
-        description:
-          'There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...',
-      },
-      {
-        image: img4,
-        title: 'Tienda 4',
-        description:
-          'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...',
-      },
-      {
-        image: img1,
-        title: 'Tienda 5',
-        description:
-          'There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...',
-      },
-      {
-        image: img2,
-        title: 'Tienda 6',
-        description:
-          'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...',
-      },
-      {
-        image: img3,
-        title: 'Tienda 7',
-        description:
-          'There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...',
-      },
-      {
-        image: img4,
-        title: 'Tienda 8',
-        description:
-          'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...',
-      },
-    ];
-
+    const {user, token} = this.state;
+    this._requestLocationPermission();
     return (
-      <ScreenContainer style={{paddingBottom: 0, backgroundColor: white}}>
-        <ContainerRow style={styles.cc}>
-          <IconButton
-            text=""
-            name="menuunfold"
-            color="#9c9c9c"
-            onClickEvent={() => this.props.navigation.navigate('Menu')}
-          />
-          <Image source={Logo} style={styles.logo} />
-        </ContainerRow>
+      <ScreenContainer style={styles.parentContainer}>
         <ScrollView showsVerticalScrollIndicator={false}>
+          <ContainerRow style={styles.headerBar}>
+            <IconButton
+              text=""
+              name="menuunfold"
+              color="#9c9c9c"
+              onClickEvent={() =>
+                this.props.navigation.navigate('Menu', {
+                  userName: user.name,
+                  itemId: user.id,
+                  token: token,
+                })
+              }
+            />
+            <Image source={Logo} style={styles.logo} />
+          </ContainerRow>
           <Text value="Descubre" style={styles.textLabel} />
-          <SliderOptions options={opt} />
-          <SliderShops shops={shop} />
+          <SliderOptions
+            options={categories}
+            onItemClickEvent={url => this._getCategoriesInfo(url)}
+          />
+          <SliderShops
+            shops={this.state.categoryStores}
+            url={this.state.categorySelected}
+            navigation={this.props.navigation}
+            token={token}
+          />
           <Text value="Novedades" style={styles.textLabel} />
-          <ScrollNews news={news} />
+          <ScrollNews
+            navigation={this.props.navigation}
+            token={token}
+            offers={() => {
+              try {
+                this.state.offers.length > 5
+                  ? this.state.offers.slice(0, 5)
+                  : this.state.offers;
+              } catch (error) {}
+            }}
+          />
         </ScrollView>
       </ScreenContainer>
     );
@@ -121,14 +230,20 @@ class Main extends Component {
 export default Main;
 
 const styles = StyleSheet.create({
-  cc: {
+  parentContainer: {
+    backgroundColor: white,
+    flex: 1,
+    justifyContent: 'space-between',
+    alignItems: 'stretch',
+    flexDirection: 'column',
+  },
+  headerBar: {
     alignItems: 'center',
     justifyContent: 'flex-start',
   },
   logo: {
     width: 70,
     height: 70,
-    marginStart: 30,
   },
   textLabel: {
     fontSize: 22,
