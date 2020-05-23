@@ -39,7 +39,7 @@ class Favorites extends Component {
       const tokenResponse = await AsyncStorage.getItem('token');
       const user = await AsyncStorage.getItem('user');
       this.setState({user: JSON.parse(user).payload});
-      alert(this.state.user.id)
+
       if (tokenResponse !== null && tokenResponse !== undefined){
         this.setState({token: tokenResponse});
         this.getData();
