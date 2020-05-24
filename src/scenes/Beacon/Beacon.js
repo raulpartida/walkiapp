@@ -19,14 +19,8 @@ class Beacon extends Component {
     super(props);
     this.state = {
       favorites: [],
-      offers: [
-        {
-          _id: 'adlsdjknjkncjekckjas',
-          name: 'Oferta #1',
-          department: 'Pantalones',
-          type: '0'
-        }
-      ],
+      beaconid: '6aa07498e6b8910eac4f3147de10a936',
+      offers: [],
       subsidiaries: [],
       token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjUwMjZjZjJjNGY5NzkyNTAwZWNlZWFlYzBhMWQ3NzNjIiwicmV2IjoiMy02ODMxZGI2MjgxOTE5YjViOWNkNTc2MmI5ODZiOTE5NiIsIm5hbWUiOiJTZXJnaW8iLCJlbWFpbCI6ImNoZWNvcm9ibGVzQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNTg5MDg1OTY0fQ.4ttttHOPGreqoHDa0L5fr9Q8dNpVW3oWE5iYnLmhnYU'
     };
@@ -44,15 +38,54 @@ class Beacon extends Component {
       
       if (tokenResponse !== null && tokenResponse !== undefined){
         this.setState({token: tokenResponse});
-        this.getData();
+        this.getOffers();
       }
     } catch (error) {
       console.error('Exception:', error);
     }
   }
 
-  getData(){
-    
+  getDepartments(){
+    fetch(baseURL + '/department/', {
+      method: 'GET',
+      timeout: 5000,
+      headers: {
+        'content-type': 'application/json',
+        'Authorization': this.state.token
+      }
+    })
+    .then((response) => response.json())
+    .catch((error) => {
+      console.error(error);
+    })
+    .then((response) => {
+      if(response.total_rows){
+        const departmentid = this.state.offers[0].departmentid
+        const department = response.rows.find(depa => depa.id == departmentid)
+        this.setState({department: department.doc.name})
+      }
+    });
+  }
+
+  getOffers(){
+    fetch(baseURL+'/beacon/getOffers/'+this.state.beaconid, {
+      method: 'GET',
+      async: true,
+      headers: {
+        'content-type': 'application/json',
+        'Authorization': this.state.token
+      }
+    })
+    .then((response) => response.json())
+    .then((response) => {
+      if(response.arreglo_jsons_superfinal){
+        this.setState({offers: response.arreglo_jsons_superfinal[0].docs})
+        this.getDepartments();
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
   }
 
 
@@ -74,7 +107,7 @@ class Beacon extends Component {
               >
                 <View style={styles.item}>
                   <ImageBackground style={styles.image} source={{uri: baseURL + "/offer/image/"+ item.image}} />
-                  { item.type === "0" &&
+                  { item.type === "1" &&
                     <View style={styles.specialOffer}>
                       <Icon
                         name="star"
@@ -89,7 +122,7 @@ class Beacon extends Component {
                       {item.name}
                     </Text>
                     <Text style={styles.department}>
-                      {item.department}
+                      {this.state.department}
                     </Text>
                   </View>
                 </View>
@@ -106,7 +139,9 @@ class Beacon extends Component {
 export default Beacon;
 
 const styles = StyleSheet.create({
-  c: {},
+  c: {
+    paddingTop: 30
+  },
   image:{
     width: 140,
     height: 90,
