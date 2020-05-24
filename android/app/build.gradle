@@ -184,6 +184,7 @@ dependencies {
     implementation ("com.facebook.react:react-native:0.61.4"){ force = true }  // From node_modules
     implementation project(':react-native-vector-icons')
     implementation 'com.google.firebase:firebase-core:16.0.1'
+    implementation 'org.altbeacon:android-beacon-library:2+'
 
     if (enableHermes) {
         def hermesPath = "../../node_modules/hermes-engine/android/";

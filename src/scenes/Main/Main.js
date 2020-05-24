@@ -6,6 +6,8 @@ import {
   ScrollView,
   PermissionsAndroid,
   Alert,
+  NativeEventEmitter,
+  NativeModules,
 } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
 import Text from '../../components/Text';
@@ -20,6 +22,7 @@ import {white, green} from '../../assets/colors';
 import {baseURL} from '../../Constants';
 import AsyncStorage from '@react-native-community/async-storage';
 import NotificationService from '../../services/NotificationService';
+import BeaconManager from '../../services/BeaconManager';
 
 class Main extends Component {
   constructor(props) {
@@ -32,6 +35,7 @@ class Main extends Component {
       categoryStores: [],
       registerDeviceKey: '',
       fcmRegistered: false,
+      timesBeaconDetected: 0,
     };
 
     this.notification = new NotificationService(
@@ -42,8 +46,37 @@ class Main extends Component {
 
   componentDidMount() {
     this._getStoreInfo();
+    this._requestLocationPermission();
+    BeaconManager.beaconInit(
+      () => {},
+      msg => {
+        console.log(msg);
+      },
+    );
+    const eventEmitter = new NativeEventEmitter(NativeModules.BeaconManager);
+    this.eventListener = eventEmitter.addListener('beaconService', event => {
+      console.log(event.event);
+      //console.log(event.data);
+      if (
+        event.event === 'BEACONS_IN_REGION' &&
+        this.state.timesBeaconDetected == 0
+      ) {
+        this.notification.localNotification(
+          '50% En caballeros',
+          'Todas las prendas y zapatos para caballero con 50% de descuento.',
+        );
+        this.setState({timesBeaconDetected: 1});
+      }
+    });
+
+    setInterval(() => {
+      this.setState({timesBeaconDetected: 0});
+    }, 300000);
   }
 
+  componentWillUnmount() {
+    this.eventListener.remove(); //Removes the listener
+  }
   _getStoreInfo = async () => {
     try {
       const tokenResponse = await AsyncStorage.getItem('token');
@@ -151,7 +184,11 @@ class Main extends Component {
   }
 
   onNotify(notify) {
-    Alert.alert(notify.title, notify.message);
+    //Alert.alert(notify.title, notify.message);
+    this.props.navigation.navigate('Shop', {
+      subsidiaryid: '2fbb26f823a3915c37546310a3b6147e',
+      token: this.state.token,
+    });
   }
 
   _requestLocationPermission = async () => {
@@ -179,7 +216,7 @@ class Main extends Component {
       {category: 'Otros', url: '/subsidiary'},
     ];
     const {user, token} = this.state;
-    this._requestLocationPermission();
+
     return (
       <ScreenContainer style={styles.parentContainer}>
         <ScrollView showsVerticalScrollIndicator={false}>
