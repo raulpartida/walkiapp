@@ -26,7 +26,7 @@ export default props => {
             >
               <View style={styles.item}>
                 <ImageBackground style={styles.image} source={{uri: baseURL + "/offer/image/"+ item.image}} />
-                { item.type === "0" &&
+                { item.type === "1" &&
                   <View style={styles.specialOffer}>
                     <Icon
                       name="star"

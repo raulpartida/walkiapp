@@ -52,13 +52,12 @@ const styles = StyleSheet.create({
     overflow: 'hidden'
   },
   item: {
-    width: '100%',
-    maxWidth: '100%',
     flexDirection: 'column',
     alignItems: 'center',
     marginTop: 10,
     marginBottom: 10,
     shadowColor: "#000",
+    marginLeft: 5,
     shadowOffset: {
       width: 0,
       height: 6,
