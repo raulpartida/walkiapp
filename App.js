@@ -14,6 +14,7 @@ import Shop from './src/scenes/Shop/Shop';
 import SignUp from './src/scenes/SignUp/SignUp';
 import Promotion from './src/scenes/Promotion/Promotion';
 import Mall from './src/scenes/Mall/Mall';
+import Beacon from './src/scenes/Beacon/Beacon';
 import Help from './src/scenes/Help/Help';
 import EditProfile from './src/scenes/EditProfile/EditProfile';
 import Join from './src/scenes/JoinToWalki/JoinToWalki';
@@ -177,6 +178,7 @@ const App: () => React$Node = () => {
             <HomeStack.Screen name="Shop" component={Shop} />
             <HomeStack.Screen name="Promotion" component={Promotion} />
             <HomeStack.Screen name="Mall" component={Mall} />
+            <HomeStack.Screen name="Beacon" component={Beacon} />
             <HomeStack.Screen name="Help" component={Help} />
             <HomeStack.Screen name="Join" component={Join} />
             <HomeStack.Screen name="Profile" component={Profile} />
