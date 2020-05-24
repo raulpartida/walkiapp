@@ -58,7 +58,6 @@ const TabStackScreen = () => (
     <Tabs.Screen name="Home" component={Main} />
     <Tabs.Screen name="QR Code" component={QRScanner} />
     <Tabs.Screen name="Favorites" component={Favorites} />
-    <Tabs.Screen name="Beacon" component={Beacon} />
   </Tabs.Navigator>
 );
 
