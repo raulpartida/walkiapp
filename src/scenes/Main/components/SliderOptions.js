@@ -17,7 +17,7 @@ export default props => {
       {props.options.map((option, index) => (
         <TouchableWithoutFeedback
           key={index}
-          onPress={() => props.onItemClickEvent(option.url)}>
+          onPress={() => props.onItemClickEvent(option.url, option.view)}>
           <View>
             <Text style={styles.discoverStyle} value={option.category} />
           </View>
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
   scrollBar: {
     width: '100%',
     flex: 1,
-    height: 40,
+    height: 50,
     paddingTop: 10,
     paddingBottom: 10,
   },

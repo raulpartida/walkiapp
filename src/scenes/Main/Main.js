@@ -32,6 +32,7 @@ class Main extends Component {
       user: {},
       offers: [],
       categorySelected: '',
+      viewSelected: '',
       categoryStores: [],
       registerDeviceKey: '',
       fcmRegistered: false,
@@ -62,16 +63,19 @@ class Main extends Component {
         this.state.timesBeaconDetected == 0
       ) {
         this.notification.localNotification(
-          '50% En caballeros',
-          'Todas las prendas y zapatos para caballero con 50% de descuento.',
+          '15% En ferretería',
+          'Todas las escaleras de aluminio de todos los tamaños con un 15% descuento directo en compras a contado.',
         );
         this.setState({timesBeaconDetected: 1});
       }
+
+      if (event.event === 'EXIT_REGION')
+        this.setState({timesBeaconDetected: 0});
     });
 
     setInterval(() => {
       this.setState({timesBeaconDetected: 0});
-    }, 300000);
+    }, 120000);
   }
 
   componentWillUnmount() {
@@ -85,7 +89,7 @@ class Main extends Component {
 
       this._getUserInfo();
       this._getOffersInfo();
-      this._getCategoriesInfo('/mall');
+      this._getCategoriesInfo('/mall', 'Mall');
     } catch (error) {
       console.error('Exception:', error);
     }
@@ -147,10 +151,8 @@ class Main extends Component {
     }
   };
 
-  _getCategoriesInfo = async (urlEnd = '') => {
+  _getCategoriesInfo = async (urlEnd = '', view = '') => {
     try {
-      console.log('Calling' + urlEnd);
-
       if (urlEnd !== '') {
         let headers = new Headers();
         headers.append('Content-Type', 'application/json');
@@ -169,13 +171,16 @@ class Main extends Component {
             return {};
           });
 
-        this.setState({categoryStores: result.rows, categorySelected: urlEnd});
+        this.setState({
+          categoryStores: result.rows,
+          categorySelected: urlEnd,
+          viewSelected: view,
+        });
       } else {
         this.setState({categoryStores: []});
       }
     } catch (error) {
       console.log(error);
-      a;
     }
   };
 
@@ -185,8 +190,8 @@ class Main extends Component {
 
   onNotify(notify) {
     //Alert.alert(notify.title, notify.message);
-    this.props.navigation.navigate('Shop', {
-      subsidiaryid: '2fbb26f823a3915c37546310a3b6147e',
+    this.props.navigation.navigate('Promotion', {
+      offerid: '0c1a89f91a9b501d4084910bd857c8db',
       token: this.state.token,
     });
   }
@@ -209,13 +214,13 @@ class Main extends Component {
 
   render() {
     const categories = [
-      {category: 'Plaza', url: '/mall'},
-      {category: 'Restaurante', url: ''},
-      {category: 'Departamental', url: '/department'},
-      {category: 'Salud', url: ''},
-      {category: 'Otros', url: '/subsidiary'},
+      {category: 'Plaza', url: '/mall', view: 'Mall'},
+      {category: 'Restaurante', url: '', view: 'Shop'},
+      {category: 'Departamental', url: '/subsidiary', view: 'Shop'},
+      {category: 'Salud', url: '', view: 'Shop'},
+      {category: 'Otros', url: '/subsidiary', view: 'Shop'},
     ];
-    const {user, token} = this.state;
+    const {user, token, offers} = this.state;
 
     return (
       <ScreenContainer style={styles.parentContainer}>
@@ -238,11 +243,12 @@ class Main extends Component {
           <Text value="Descubre" style={styles.textLabel} />
           <SliderOptions
             options={categories}
-            onItemClickEvent={url => this._getCategoriesInfo(url)}
+            onItemClickEvent={(url, view) => this._getCategoriesInfo(url, view)}
           />
           <SliderShops
             shops={this.state.categoryStores}
             url={this.state.categorySelected}
+            view={this.state.viewSelected}
             navigation={this.props.navigation}
             token={token}
           />
@@ -250,13 +256,7 @@ class Main extends Component {
           <ScrollNews
             navigation={this.props.navigation}
             token={token}
-            offers={() => {
-              try {
-                this.state.offers.length > 5
-                  ? this.state.offers.slice(0, 5)
-                  : this.state.offers;
-              } catch (error) {}
-            }}
+            offers={offers.length > 5 ? offers.slice(0, 5) : offers}
           />
         </ScrollView>
       </ScreenContainer>
