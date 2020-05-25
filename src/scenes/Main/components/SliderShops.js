@@ -32,8 +32,9 @@ export default props => {
         return (
           <TouchableWithoutFeedback
             onPress={() =>
-              props.navigation.push('Shop', {
-                id: item.id,
+              props.navigation.push(props.view == '' ? 'Shop' : props.view, {
+                mallid: item.id,
+                subsidiaryid: item.id,
                 token: props.token,
               })
             }>
@@ -63,7 +64,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 5,
     maxWidth: '100%',
-    maxHeight: 18,
   },
   item: {
     width: 120,

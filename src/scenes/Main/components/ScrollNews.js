@@ -29,7 +29,7 @@ export default props => {
           <TouchableWithoutFeedback
             onPress={() =>
               props.navigation.push('Promotion', {
-                id: item.id,
+                offerid: item.id,
                 token: props.token,
               })
             }>

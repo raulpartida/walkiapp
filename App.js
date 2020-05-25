@@ -23,6 +23,7 @@ import Profile from './src/scenes/Profile/Profile';
 import SplashScreen from './src/scenes/SplashScreen/SplashScreen';
 import QRScanner from './src/scenes/QRScanner/QRScanner';
 import Icon from 'react-native-vector-icons/AntDesign';
+import Toast from 'react-native-simple-toast';
 
 const HomeStack = createStackNavigator();
 const AuthStack = createStackNavigator();
@@ -88,7 +89,7 @@ async function _loginHandle(user = '', password = '', dispatch) {
         await AsyncStorage.setItem('token', hash);
         dispatch({type: 'SIGN_IN', token: hash});
       } else {
-        console.log('Error de acceso');
+        Toast.show('Error de acceso, verifica las credenciales.', Toast.SHORT);
       }
     } catch (error) {
       console.log(error.message);
