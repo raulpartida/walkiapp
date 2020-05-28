@@ -20,6 +20,9 @@ import {AuthContext} from '../../Context';
 
 function Menu(props) {
   const {signOut} = React.useContext(AuthContext);
+  const {itemId} = props.route.params;
+  const {userName} = props.route.params;
+  const {token} = props.route.params;
 
   return (
     <ScreenContainer
@@ -36,7 +39,7 @@ function Menu(props) {
           />
         </ContainerRow>
         <ContainerRow style={styles.avatar}>
-          <SubTitleSection value="Raúl Partida" style={styles.person} />
+          <SubTitleSection value={userName} style={styles.person} />
           <Avatar
             rounded
             size="large"
@@ -70,7 +73,13 @@ function Menu(props) {
             </View>
           </TouchableWithoutFeedback>*/}
           <TouchableWithoutFeedback
-            onPress={() => props.navigation.navigate('Profile')}>
+            onPress={() =>
+              props.navigation.navigate('Profile', {
+                userId: 'e1c3285109789b6fca404a8f7b316f20',
+                token:
+                  'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6ImUxYzMyODUxMDk3ODliNmZjYTQwNGE4ZjdiMzE2ZjIwIiwicmV2IjoiMS1lM2FlYjUzMjEzMTM0NzQ5YTdiZWI3NzQ1ZTNhMTk0ZiIsIm5hbWUiOiJBZG1pbiIsImVtYWlsIjoiYWRtaW4iLCJyb2xlIjoiQURNSU4iLCJpbWFnZSI6IkFkbWluIiwiaWF0IjoxNTg4ODI0MDkxfQ.3m6J1p0CPxdx_gK0xTrVNfYV0A-6OqjwGIANBx-zJV8',
+              })
+            }>
             <View style={styles.rowSection}>
               <IconButton text="" name="user" color="#9c9c9c" />
               <Text value="Mi perfil" />
@@ -101,11 +110,7 @@ function Menu(props) {
               </View>
             </TouchableWithoutFeedback>
           </View>*/}
-        <CancelButton
-          title="Cerrar sesión"
-          style={styles.btnClose}
-          onClickEvent={() => signOut()}
-        />
+        <CancelButton title="Cerrar sesión" onClickEvent={() => signOut()} />
         <Label value="0.1.0" style={styles.versionLabel} />
       </ScrollView>
     </ScreenContainer>
@@ -147,16 +152,5 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginBottom: 10,
     marginTop: 10,
-  },
-  btnClose: {
-    width: '98%',
-    paddingBottom: 10,
-    paddingTop: 10,
-    paddingStart: 20,
-    paddingEnd: 20,
-    textAlign: 'center',
-    justifyContent: 'center',
-    marginTop: 20,
-    marginBottom: 10,
   },
 });

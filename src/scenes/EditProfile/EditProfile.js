@@ -17,7 +17,29 @@ class EditProfile extends Component {
 
   componentDidMount() {}
 
-  handle = () => {};
+  _updateUserInfo = async (user, token) => {
+    try {
+      let headers = new Headers();
+      headers.append('Content-Type', 'application/json');
+      headers.append('Authorization', token);
+      headers.get('Content-Type');
+
+      let response = await fetch(baseURL + '/user', {
+        method: 'PUT',
+        headers: headers,
+        body: JSON.stringify(user),
+      })
+        .then(response => {
+          return response.json();
+        })
+        .catch(error => {
+          console.error('Exception:', error);
+          return {};
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   render() {
     return (
