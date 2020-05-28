@@ -37,6 +37,7 @@ class Main extends Component {
       registerDeviceKey: '',
       fcmRegistered: false,
       timesBeaconDetected: 0,
+      offerFound: '',
     };
 
     this.notification = new NotificationService(
@@ -62,9 +63,10 @@ class Main extends Component {
         event.event === 'BEACONS_IN_REGION' &&
         this.state.timesBeaconDetected == 0
       ) {
+        this._getBeaconOffersInfo('0x00112233445566778899');
         this.notification.localNotification(
-          '15% En ferretería',
-          'Todas las escaleras de aluminio de todos los tamaños con un 15% descuento directo en compras a contado.',
+          this.state.offerFound['name'],
+          this.state.offerFound['description'],
         );
         this.setState({timesBeaconDetected: 1});
       }
@@ -190,11 +192,34 @@ class Main extends Component {
 
   onNotify(notify) {
     //Alert.alert(notify.title, notify.message);
-    this.props.navigation.navigate('Promotion', {
-      offerid: '0c1a89f91a9b501d4084910bd857c8db',
+    this.props.navigation.navigate('Shop', {
+      subsidiaryid: this.state.offerFound['subsidiaryid'],
       token: this.state.token,
     });
   }
+
+  _getBeaconOffersInfo = async uuid => {
+    try {
+      let headers = new Headers();
+      headers.append('Content-Type', 'application/json');
+      headers.append('Authorization', this.state.token);
+      headers.get('Content-Type');
+      let offersInfo = await fetch(baseURL + '/beacon/getOffers/' + uuid, {
+        method: 'GET',
+        headers: headers,
+      })
+        .then(response => {
+          return response.json();
+        })
+        .catch(error => {
+          console.error('Exception-Offer:', error);
+          return {};
+        });
+      this.setState({offerFound: offersInfo['offersS'][0]});
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   _requestLocationPermission = async () => {
     try {

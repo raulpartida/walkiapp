@@ -22,6 +22,7 @@ import NewPass from './src/scenes/NewPassword/NewPassword';
 import Profile from './src/scenes/Profile/Profile';
 import SplashScreen from './src/scenes/SplashScreen/SplashScreen';
 import QRScanner from './src/scenes/QRScanner/QRScanner';
+import PasswordRecovery from './src/scenes/PasswordRecovery/PasswordRecovery';
 import Icon from 'react-native-vector-icons/AntDesign';
 import Toast from 'react-native-simple-toast';
 
@@ -185,6 +186,10 @@ const App: () => React$Node = () => {
             <HomeStack.Screen name="Profile" component={Profile} />
             <HomeStack.Screen name="EditProfile" component={EditProfile} />
             <HomeStack.Screen name="NewPassword" component={NewPass} />
+            <HomeStack.Screen
+              name="PasswordRecovery"
+              component={PasswordRecovery}
+            />
           </HomeStack.Navigator>
         ) : (
           <AuthStack.Navigator screenOptions={{headerShown: false}}>
